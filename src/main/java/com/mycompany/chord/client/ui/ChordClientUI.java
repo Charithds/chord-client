@@ -5,15 +5,33 @@
  */
 package com.mycompany.chord.client.ui;
 
-import com.mycompany.chord.client.others.SHA1Hasher;
+import com.mycompany.chord.client.constant.HostConfiguration;
+import com.mycompany.chord.client.model.Finger;
+import com.mycompany.chord.client.others.ChordThread;
+import com.mycompany.chord.client.others.Node;
+import static com.mycompany.chord.client.others.Sender.data;
+import com.mycompany.chord.client.service.ChordFileSearch;
 import com.mycompany.chord.client.service.ChordState;
+import com.mycompany.chord.client.service.FileDownloadUtility;
 import com.mycompany.chord.client.service.FileSharingService;
 import com.mycompany.chord.client.service.NetworkRegisterService;
+import static com.mycompany.chord.client.ui.ChordMainFrame.getRandomIntegerBetweenRange;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 /**
  *
@@ -23,6 +41,8 @@ public class ChordClientUI extends javax.swing.JFrame {
     
     private final NetworkRegisterService networkRegisterService;
     private final FileSharingService fileSharingService;
+    // private ChordFileSearch chordFileSearch;
+    private JFileChooser chooser;;
 
     /**
      * Creates new form ChordClientUI
@@ -33,8 +53,29 @@ public class ChordClientUI extends javax.swing.JFrame {
         fileSharingService = FileSharingService.getInstance();
         
         fileSharingService.initializeFilesShared();
+        // chordFileSearch = ChordState.getChordFileSearch();
+        String folderPath = new java.io.File(".").getAbsolutePath();
+        ChordState.setDownloadPath(folderPath);
+        downloadPathLabel.setText(folderPath);
         updateSharedFiles();
         
+    }
+    
+    public void setNodesData(long id, Map<String, List<Finger>> keyMap)
+    {
+        //lblNodeId.setText(lblNodeId.getText() + id);
+        
+        DefaultTableModel model = (DefaultTableModel) nodesTable.getModel();
+        
+        int size = keyMap.size();
+        for (int i = 0; i < size; i++) {
+            String idkey = (String)keyMap.keySet().toArray()[i];
+            for(int j = 0; j < keyMap.get(idkey).size(); j++)
+            {
+                String[] data = {idkey, keyMap.get(idkey).get(j).getAddress(), keyMap.get(idkey).get(j).getPort()+""};
+                model.addRow(data);   
+            }
+        }
     }
 
     /**
@@ -48,6 +89,7 @@ public class ChordClientUI extends javax.swing.JFrame {
 
         jPanel3 = new javax.swing.JPanel();
         jScrollBar1 = new javax.swing.JScrollBar();
+        jPanel9 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         connectButton = new javax.swing.JButton();
         usernameTextField = new javax.swing.JTextField();
@@ -56,6 +98,13 @@ public class ChordClientUI extends javax.swing.JFrame {
         connectedStatusLabel = new javax.swing.JLabel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel2 = new javax.swing.JPanel();
+        searchTextField = new javax.swing.JTextField();
+        searchButton = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        filesTable = new javax.swing.JTable();
+        downloadPathLabel = new javax.swing.JLabel();
+        selectFolderButton = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         sharedFilesList = new javax.swing.JList<>();
@@ -84,6 +133,12 @@ public class ChordClientUI extends javax.swing.JFrame {
         jLabel16 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
         jSeparator3 = new javax.swing.JSeparator();
+        jPanel10 = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jPanel11 = new javax.swing.JPanel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        nodesTable = new javax.swing.JTable();
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -96,10 +151,20 @@ public class ChordClientUI extends javax.swing.JFrame {
             .addGap(0, 100, Short.MAX_VALUE)
         );
 
+        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
+        jPanel9.setLayout(jPanel9Layout);
+        jPanel9Layout.setHorizontalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+        jPanel9Layout.setVerticalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         connectButton.setText("Join");
-        connectButton.setActionCommand("Join");
         connectButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 connectButtonActionPerformed(evt);
@@ -143,15 +208,93 @@ public class ChordClientUI extends javax.swing.JFrame {
                 .addComponent(connectedStatusLabel))
         );
 
+        searchButton.setText("Search");
+        searchButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchButtonActionPerformed(evt);
+            }
+        });
+
+        filesTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Filename", "Peer Count"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Integer.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, true
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(filesTable);
+
+        downloadPathLabel.setText("E:\\Academics\\Distributed Computing\\Cascade\\Cascade");
+
+        selectFolderButton.setText("Select Folder");
+        selectFolderButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectFolderButtonActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("Download");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 375, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(searchTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(searchButton))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(downloadPathLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(selectFolderButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGap(0, 2, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 232, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(searchTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(searchButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(downloadPathLabel)
+                    .addComponent(selectFolderButton))
+                .addContainerGap())
         );
 
         jTabbedPane1.addTab("Files", jPanel2);
@@ -167,7 +310,7 @@ public class ChordClientUI extends javax.swing.JFrame {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 355, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jLabel18)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -180,7 +323,7 @@ public class ChordClientUI extends javax.swing.JFrame {
                 .addComponent(jLabel18)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(71, Short.MAX_VALUE))
+                .addContainerGap(93, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("My Files", jPanel4);
@@ -225,7 +368,7 @@ public class ChordClientUI extends javax.swing.JFrame {
                                 .addComponent(jLabel4)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 97, Short.MAX_VALUE)))
+                        .addGap(0, 137, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
@@ -367,10 +510,91 @@ public class ChordClientUI extends javax.swing.JFrame {
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(33, Short.MAX_VALUE))
+                .addContainerGap(55, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Status", jPanel5);
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Finger", "Successor", "IP Address", "Port"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Long.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane3.setViewportView(jTable1);
+
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        jTabbedPane1.addTab("Fingers", jPanel10);
+
+        nodesTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Key", "Source IP", "Port"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.Long.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane4.setViewportView(nodesTable);
+
+        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
+        jPanel11.setLayout(jPanel11Layout);
+        jPanel11Layout.setHorizontalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 395, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel11Layout.setVerticalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(12, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("Nodes", jPanel11);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -386,8 +610,8 @@ public class ChordClientUI extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -435,6 +659,141 @@ public class ChordClientUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_connectButtonActionPerformed
 
+    private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
+        // TODO add your handling code here:
+        try {
+            DefaultTableModel searchResultsDataModel = (DefaultTableModel) filesTable.getModel();
+
+            for( int i = searchResultsDataModel.getRowCount() - 1; i >= 0; i-- ) {
+                searchResultsDataModel.removeRow(i);
+            }
+
+            //Contact Index Server and Get Node List
+            String fileQuery = searchTextField.getText().trim();
+            String searchMessage = "SER:"+fileQuery;
+
+            DatagramSocket socket = new DatagramSocket();
+            byte[] toSend  = searchMessage.getBytes();
+            InetAddress IPAddress;
+                try {
+                    IPAddress = InetAddress.getByName("127.0.0.1");
+                    DatagramPacket packet = new DatagramPacket(toSend, toSend.length, IPAddress, 4444);
+                    try {
+                        socket.send(packet);
+                    } catch (IOException ex) {
+                        Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } catch (UnknownHostException ex) {
+                    Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            System.out.println("Sent: " + searchMessage);
+
+            byte[] receive = new byte[65535];
+            DatagramPacket DpReceive = new DatagramPacket(receive, receive.length);
+            try {
+                socket.receive(DpReceive);
+            } catch (IOException ex) {
+                Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            // Read response from chord
+            String serverResponse = data(receive).toString();
+            System.out.println("Received: " + serverResponse);
+
+
+            String[] serverResponseSegments = serverResponse.split(":");
+            if(serverResponseSegments[0].equals("SEARCH_RES")){
+
+                int searchResultCount = Integer.valueOf(serverResponseSegments[1]);
+
+                int i=2;
+                String fileName = "";
+                String peerCount = "";
+
+                while(i<serverResponseSegments.length){
+                    fileName = serverResponseSegments[i];
+                    peerCount = serverResponseSegments[i+1];
+                    String[] dataRow = {fileName, peerCount};
+                    searchResultsDataModel.addRow(dataRow);
+                    i=i+2;
+                }
+
+            }
+            filesTable.setModel(searchResultsDataModel);
+
+        }catch(Exception e){
+            System.err.println(e);
+        }
+    }//GEN-LAST:event_searchButtonActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:\
+        int selectedRow = filesTable.getSelectedRow();
+        if(selectedRow!=-1){
+            String fullFileName = filesTable.getModel().getValueAt(selectedRow, 0).toString();
+            //String fullFileName = txtFileName.getText()
+            List<Finger> peers = ChordState.getChordFileSearch().searchFile(fullFileName);
+            if(peers!=null && peers.size()>0)
+            {
+                List<String> nodeList = new ArrayList<>();
+                peers.forEach(peer->{
+                    nodeList.add(peer.getAddress()+":"+peer.getPort());
+                });
+                String peerListStr = String.join(", ", nodeList);
+                //JOptionPane.showMessageDialog(null, "File Found at Peers - "+ peerListStr, "File Download", JOptionPane.INFORMATION_MESSAGE);
+
+
+                int dialogResult = JOptionPane.showConfirmDialog (null, "File Found at Peers - "+ peerListStr+ ". Do you want to download from a random node?","Download Confirmation",JOptionPane.YES_NO_OPTION);
+                if(dialogResult == JOptionPane.YES_OPTION){
+                    //TODO: Do Download Here
+                    int randomNodeId = getRandomIntegerBetweenRange(0, nodeList.size()-1);
+                    Finger selectedPeer = peers.get(randomNodeId);
+                    int downloadPort = selectedPeer.getPort()+1000;
+                    String fileDownloadURL = "http://" + selectedPeer.getAddress() + ":"+downloadPort+"/api/download?file="+fullFileName.replaceAll(" ", "");
+                    System.out.println("File is Downloading from "+fileDownloadURL+ " to "+ChordState.getDownloadPath());
+                    try {
+                        FileDownloadUtility.downloadFile(fileDownloadURL, ChordState.getDownloadPath());
+                        JOptionPane.showMessageDialog(null, "File downloaded successfuly from node "+selectedPeer.getAddress()+":"+selectedPeer.getPort(), "File Download Successful", JOptionPane.INFORMATION_MESSAGE);
+
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(null, "File Not Found", "File Download Error", JOptionPane.WARNING_MESSAGE);
+                        ex.printStackTrace();
+                    }
+                }
+                else{
+                    JOptionPane.showMessageDialog(null, "File Not Found", "File Download Error", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+            else
+                JOptionPane.showMessageDialog(null, "File Not Found", "File Download Error", JOptionPane.WARNING_MESSAGE);
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "Please select a file to download", "File Download Error", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void selectFolderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectFolderButtonActionPerformed
+        // TODO add your handling code here:
+        if (chooser == null) {
+            chooser = new JFileChooser(); 
+            chooser.setCurrentDirectory(new java.io.File("."));
+            chooser.setDialogTitle("Choose the downloads folder");
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+        }
+        //    
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
+            System.out.println("getCurrentDirectory(): " +  chooser.getCurrentDirectory());
+            System.out.println("getSelectedFile() : "  +  chooser.getSelectedFile());
+            String loc = chooser.getCurrentDirectory().getAbsolutePath();
+            ChordState.setDownloadPath(loc);
+            downloadPathLabel.setText(loc);
+        } else {
+            System.out.println("No Selection ");
+        }
+    }//GEN-LAST:event_selectFolderButtonActionPerformed
+
     private void connectionFailed(String connectedStatusText) {
         connectedStatusLabel.setText(connectedStatusText);
         connectButton.setText("Join");
@@ -451,6 +810,9 @@ public class ChordClientUI extends javax.swing.JFrame {
     public static void main(String args[]) {
         try {
             System.setProperty("com.mycompany.chord.client.service.NetworkRegisterService", String.valueOf(Level.INFO));
+            System.setProperty("com.mycompany.chord.client.service.FileSharingService", String.valueOf(Level.INFO));
+            System.setProperty("com.mycompany.chord.client.others.ChordThread", String.valueOf(Level.INFO));
+            
             LogManager.getLogManager().readConfiguration();
         } catch (Exception e) {
             System.out.println("Error while initializing logger");
@@ -490,7 +852,10 @@ public class ChordClientUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton connectButton;
     private javax.swing.JLabel connectedStatusLabel;
+    private javax.swing.JLabel downloadPathLabel;
+    private javax.swing.JTable filesTable;
     private javax.swing.JTextField ipTextField;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -510,6 +875,8 @@ public class ChordClientUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -517,13 +884,22 @@ public class ChordClientUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollBar jScrollBar1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTable nodesTable;
     private javax.swing.JTextField portTextField;
+    private javax.swing.JButton searchButton;
+    private javax.swing.JTextField searchTextField;
+    private javax.swing.JButton selectFolderButton;
     private javax.swing.JList<String> sharedFilesList;
     private javax.swing.JTextField usernameTextField;
     // End of variables declaration//GEN-END:variables

@@ -28,6 +28,8 @@ public class ChordState {
     private static List<Long> keyList;
     private static String myIP;
     private static int port;
+    private static String downloadPath;
+    private static ChordFileSearch chordFileSearch;
 
     /**
      * @return the node
@@ -111,5 +113,33 @@ public class ChordState {
      */
     public static void setPort(int aPort) {
         port = aPort;
+    }
+
+    /**
+     * @return the downloadPath
+     */
+    public static String getDownloadPath() {
+        return downloadPath;
+    }
+
+    /**
+     * @param aDownloadPath the downloadPath to set
+     */
+    public static void setDownloadPath(String aDownloadPath) {
+        downloadPath = aDownloadPath;
+    }
+
+    /**
+     * @return the chordFileSearch
+     */
+    public static ChordFileSearch getChordFileSearch() {
+        return chordFileSearch;
+    }
+
+    /**
+     * @param aChordFileSearch the chordFileSearch to set
+     */
+    public static void setChordFileSearch(ChordFileSearch aChordFileSearch) {
+        chordFileSearch = aChordFileSearch;
     }
 }

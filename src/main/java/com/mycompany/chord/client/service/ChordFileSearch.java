@@ -26,7 +26,15 @@ public class ChordFileSearch {
     
     private Node node;
     
-    public ChordFileSearch(Node node){
+    private static ChordFileSearch me;
+    public static ChordFileSearch getInstance(Node node) {
+        if (me == null) {
+            me = new ChordFileSearch(node);
+        }
+        return me;
+    }
+    
+    private ChordFileSearch(Node node){
         this.node = node;
     } 
     

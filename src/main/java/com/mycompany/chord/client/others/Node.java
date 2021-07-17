@@ -63,6 +63,7 @@ public class Node {
         new Thread(new NodeListener(this)).start();
         new Thread(new NodeStabilizer(this)).start();
         new Thread(new Heart(this)).start();
+        new Thread(new DownloadListener(this)).start();
     }
 
     /**
@@ -100,9 +101,13 @@ public class Node {
         this.initializeSuccessors();
 
         // Start listening for connections and heartbeats from neighbors
+        System.out.println("NODE LISTENER");
         new Thread(new NodeListener(this)).start();
+        System.out.println("NODE STABILIZER");
         new Thread(new NodeStabilizer(this)).start();
+        System.out.println("NODE HEART");
         new Thread(new Heart(this)).start();
+        System.out.println("NODE DOWNLOAD LISTENER");
         new Thread(new DownloadListener(this)).start();
     }
 
@@ -138,8 +143,8 @@ public class Node {
                     try {
                         IPAddress = InetAddress.getByName(this.existingNodeAddress);
                         DatagramPacket packet =new DatagramPacket(toSend, toSend.length, IPAddress, this.existingNodePort); 
-                        System.out.println("sending message:" + message + "\nfrom-" + ChordState.getNode().getAddress() + ":" +
-                                           ChordState.getNode().getPort() + ",to-" + this.existingNodeAddress + ":" + this.existingNodePort);
+                        System.out.println("sending message:" + message + "\nfrom-" + ChordState.getMyIP() + ":" +
+                                           ChordState.getPort()+ ",to-" + this.existingNodeAddress + ":" + this.existingNodePort);
                         try {
                             socket.send(packet);
                         } catch (IOException ex) {
@@ -201,8 +206,8 @@ public class Node {
                 try {
                     IPAddress = InetAddress.getByName(this.firstSuccessor.getAddress());
                     DatagramPacket packet =new DatagramPacket(toSend, toSend.length, IPAddress, this.firstSuccessor.getPort()); 
-                    System.out.println("sending message:" + message + "\nfrom-" + ChordState.getNode().getAddress() + ":" +
-                                       ChordState.getNode().getPort() + ",to-" + this.firstSuccessor.getAddress() + ":" + this.firstSuccessor.getPort());
+                    System.out.println("sending message:" + message + "\nfrom-" + ChordState.getMyIP() + ":" +
+                                       ChordState.getPort() + ",to-" + this.firstSuccessor.getAddress() + ":" + this.firstSuccessor.getPort());
                     try {
                         socket.send(packet);
                     } catch (IOException ex) {

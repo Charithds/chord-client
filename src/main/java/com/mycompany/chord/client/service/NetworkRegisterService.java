@@ -103,6 +103,7 @@ public class NetworkRegisterService {
         } else {
             ChordState.setNode(new Node(myIP, myPort, peerIps, peerPorts));
         }
+        ChordState.setChordFileSearch(ChordFileSearch.getInstance(ChordState.getNode()));
     }
     
     public void unreg(String username, String ipAddress, String port) {

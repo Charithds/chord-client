@@ -41,6 +41,7 @@ public class ChordThread implements Runnable {
             try {
                 socket.receive(DpReceive);
             } catch (IOException ex) {
+                ex.printStackTrace();
                 Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
             }
             // Read input from client
@@ -66,6 +67,7 @@ public class ChordThread implements Runnable {
                         try {
                             socket.send(packet);
                         } catch (IOException ex) {
+                            ex.printStackTrace();
                             Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         
@@ -84,6 +86,7 @@ public class ChordThread implements Runnable {
                         try {
                             socket.send(packet);
                         } catch (IOException ex) {
+                            ex.printStackTrace();
                             Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         
@@ -114,6 +117,7 @@ public class ChordThread implements Runnable {
                         try {
                             socket.send(packet);
                         } catch (IOException ex) {
+                            ex.printStackTrace();
                             Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         
@@ -132,6 +136,7 @@ public class ChordThread implements Runnable {
                         try {
                             socket.send(packet);
                         } catch (IOException ex) {
+                            ex.printStackTrace();
                             Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         
@@ -170,6 +175,7 @@ public class ChordThread implements Runnable {
                         try {
                             socket.send(packet);
                         } catch (IOException ex) {
+                            ex.printStackTrace();
                             Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         
@@ -189,6 +195,7 @@ public class ChordThread implements Runnable {
                         try {
                             socket.send(packet);
                         } catch (IOException ex) {
+                            ex.printStackTrace();
                             Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         
@@ -307,9 +314,11 @@ public class ChordThread implements Runnable {
                     try {
                         socket.send(packet);
                     } catch (IOException ex) {
+                        ex.printStackTrace();
                         Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } catch (UnknownHostException ex) {
+                    ex.printStackTrace();
                     Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 
@@ -320,6 +329,7 @@ public class ChordThread implements Runnable {
                 try {
                     socket.receive(DpReceive);
                 } catch (IOException ex) {
+                    ex.printStackTrace();
                     Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
@@ -427,9 +437,11 @@ public class ChordThread implements Runnable {
                     try {
                         socket.send(packet);
                     } catch (IOException ex) {
+                        ex.printStackTrace();
                         Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } catch (UnknownHostException ex) {
+                    ex.printStackTrace();
                     Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
@@ -440,6 +452,7 @@ public class ChordThread implements Runnable {
             try {
                 socket.receive(DpReceive);
             } catch (IOException ex) {
+                ex.printStackTrace();
                 Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
             }
 
@@ -453,6 +466,7 @@ public class ChordThread implements Runnable {
             // Close connections
             socket.close();
         } catch (IOException e) {
+            
             e.printStackTrace();
         }
         return response;

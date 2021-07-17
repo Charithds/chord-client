@@ -92,7 +92,7 @@ public class FileSharingService {
 
         ChordState.getNode().setKeys(keys);
 
-        chordFileSearch = new ChordFileSearch(ChordState.getNode());
+        chordFileSearch = ChordState.getChordFileSearch();
 
         //publish to index server
         InetAddress IPAddress1;
@@ -103,8 +103,10 @@ public class FileSharingService {
             DatagramPacket packet =new DatagramPacket(toSend1, toSend1.length, IPAddress1, 4444);
             socket.send(packet);
         } catch (UnknownHostException ex) {
+            ex.printStackTrace();
             Logger.getLogger(NodeStabilizer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
+            ex.printStackTrace();
             Logger.getLogger(ChordMainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

@@ -59,6 +59,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 import static com.mycompany.chord.client.others.Sender.data;
+import com.mycompany.chord.client.service.ChordState;
 
 public class ChordMainFrame extends JFrame {
     private static final long serialVersionUID = 6529685098267757690L;
@@ -551,7 +552,7 @@ public class ChordMainFrame extends JFrame {
 
         node.setKeys(keys);
 
-        chordFileSearch = new ChordFileSearch(node);
+        chordFileSearch = ChordState.getChordFileSearch();
 
 
         //publish to index server
@@ -571,8 +572,7 @@ public class ChordMainFrame extends JFrame {
     }//GEN-LAST:event_btnJoinActionPerformed
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-        try
-        {
+        try {
             DefaultTableModel searchResultsDataModel = (DefaultTableModel) tblSearchResults.getModel();
 
             while (searchResultsDataModel.getRowCount()>0)
