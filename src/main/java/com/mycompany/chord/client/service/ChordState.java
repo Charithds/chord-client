@@ -5,7 +5,9 @@
  */
 package com.mycompany.chord.client.service;
 
+import com.mycompany.chord.client.model.Finger;
 import com.mycompany.chord.client.others.Node;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,6 +32,8 @@ public class ChordState {
     private static int port;
     private static String downloadPath;
     private static ChordFileSearch chordFileSearch;
+    // todo change chis
+    private static List<com.mycompany.chord.client.model.Node> fingerTable = new ArrayList<>(5);
 
     /**
      * @return the node
@@ -141,5 +145,19 @@ public class ChordState {
      */
     public static void setChordFileSearch(ChordFileSearch aChordFileSearch) {
         chordFileSearch = aChordFileSearch;
+    }
+
+    /**
+     * @return the fingerTable
+     */
+    public static List<com.mycompany.chord.client.model.Node> getFingerTable() {
+        return fingerTable;
+    }
+
+    /**
+     * @param aFingerTable the fingerTable to set
+     */
+    public static void setFingerTable(List<com.mycompany.chord.client.model.Node> aFingerTable) {
+        fingerTable = aFingerTable;
     }
 }
