@@ -40,10 +40,10 @@ public class NetworkRegisterService {
         }
         logger.info("Response:" + response);
 
-        updateState(response, ipAddress, port);
+        updateState(response, username, ipAddress, port);
     }
 
-    private void updateState(String response, String myIP, String myPort) throws Exception {
+    private void updateState(String response, String username, String myIP, String myPort) throws Exception {
         String[] splitted = response.split(" ");
 
         int noOfNodes = Integer.parseInt(splitted[2]);
@@ -55,14 +55,14 @@ public class NetworkRegisterService {
         switch (noOfNodes) {
             case 0:
                 ChordState.setJoined(true);
-                initializeNodes(myIP, myPort, null, null);
+                initializeNodes(username, myIP, myPort, null, null);
                 break;
             case 1:
                 peerIps = new String[1];
                 peerPorts = new int[1];
                 peerIps[0] = splitted[3];
                 peerPorts[0] = Integer.parseInt(splitted[4]);
-                initializeNodes(myIP, myPort, peerIps, peerPorts);
+                initializeNodes(username, myIP, myPort, peerIps, peerPorts);
                 ChordState.setJoined(true);
                 break;
             case 2:
@@ -75,7 +75,7 @@ public class NetworkRegisterService {
                 peerIps[1] = splitted[5];
                 peerPorts[1] = Integer.parseInt(splitted[6]);
                 
-                initializeNodes(myIP, myPort, peerIps, peerPorts);
+                initializeNodes(username, myIP, myPort, peerIps, peerPorts);
                 ChordState.setJoined(true);
                 break;
             case 9996:
@@ -97,9 +97,10 @@ public class NetworkRegisterService {
         
     }
     
-    private void initializeNodes(String myIP, String myPort, String[] peerIps, int[] peerPorts) {
+    private void initializeNodes(String username, String myIP, String myPort, String[] peerIps, int[] peerPorts) {
         UserConfig.setIp(myIP);
         UserConfig.setPort(Integer.parseInt(myPort));
+        UserConfig.setUsername(username);
         if (peerIps == null) {
             NetworkJoinService.getInstance().join(null);
         } else {

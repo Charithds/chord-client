@@ -26,6 +26,13 @@ public class NetworkJoinService {
 	}
 
 	public void join(Address address) {
+            try {
+                    NodeDataServer nodeDataServer = new NodeDataServer();
+                    nodeDataServer.start(UserConfig.getPort());
+                    ChordState.setNodeDataServer(nodeDataServer);
+            } catch (Exception e) {
+                    e.printStackTrace();
+            }
 		Address myAddress = new Address(UserConfig.getUsername(), UserConfig.getIp(), UserConfig.getPort());
 		Node node = new Node(myAddress);
 		ChordState.setNode(node);
@@ -38,13 +45,6 @@ public class NetworkJoinService {
 		} else {
 			initFingerTable(address);
 			updateOthers();
-		}
-		try {
-			NodeDataServer nodeDataServer = new NodeDataServer();
-			nodeDataServer.start(UserConfig.getPort());
-			ChordState.setNodeDataServer(nodeDataServer);
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 

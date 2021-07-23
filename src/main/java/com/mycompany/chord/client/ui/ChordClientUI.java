@@ -647,6 +647,7 @@ public class ChordClientUI extends javax.swing.JFrame {
                 // 
             } catch (Exception e) {
                 // System.out.println("Error");
+                e.printStackTrace();
                 connectionFailed("Failed");
             }
         } else {

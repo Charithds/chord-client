@@ -6,6 +6,7 @@
 package com.mycompany.chord.client.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mycompany.chord.client.model.Node;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,11 +28,11 @@ public class Client {
 		objectMapper = new ObjectMapper();
 	}
 
-	public <T> T getDetails(String ip, int port, String command, Class<T> tClass) throws IOException {
+	public Node getDetails(String ip, int port, String command) throws IOException {
 		startConnection(ip, port);
 		String response = sendMessage(command);
 		stopConnection();
-		return objectMapper.readValue(response, tClass);
+		return objectMapper.readValue(response, Node.class);
 	}
 
 	public void updateFingerTable(String ip, int port, String command, long n, int i, String sourceIp, int sourcePort)
@@ -39,7 +40,7 @@ public class Client {
 		startConnection(ip, port);
 		String response = sendMessage(command+ " " + n + " " + i + " " + sourceIp  + " " + sourcePort);
 		stopConnection();
-		objectMapper.readValue(response, Object.class);
+		objectMapper.convertValue(response, Object.class);
 	}
 
 	public void startConnection(String ip, int port) throws IOException {
@@ -64,6 +65,6 @@ public class Client {
 		startConnection(ip, port);
 		String response = sendMessage(command+ " " + id + " " + sourceIp  + " " + sourcePort);
 		stopConnection();
-		objectMapper.readValue(response, Object.class);
+		objectMapper.convertValue(response, Object.class);
 	}
 }

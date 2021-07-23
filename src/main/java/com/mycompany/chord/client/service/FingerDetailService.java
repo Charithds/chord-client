@@ -21,7 +21,7 @@ public class FingerDetailService {
 
 	public static Node getFingerDetails(Address address) {
 		try {
-			return client.getDetails(address.getIp(), address.getPort(), "DETAILS", Node.class);
+			return client.getDetails(address.getIp(), address.getPort(), "DETAILS");
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;

@@ -35,9 +35,9 @@ public class DownloadListener implements Runnable{
 
     public void run() {
         try {
-            Node chordNode = ChordState.getNode();
-            int serverPort = chordNode.getAddress().getPort()+1000;
-            System.out.println("Starting Node "+chordNode.getAddress().getIp()+":"+chordNode.getAddress().getPort()+" Download Listener on port "+serverPort);
+            // Node chordNode = ChordState.getNode();
+            int serverPort = UserConfig.getPort()+1000;
+            System.out.println("Starting Node "+UserConfig.getIp()+":"+UserConfig.getPort()+" Download Listener on port "+serverPort);
             
             HttpServer server = HttpServer.create(new InetSocketAddress(serverPort), 0);
             server.createContext("/api/download", (

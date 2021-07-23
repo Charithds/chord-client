@@ -5,6 +5,8 @@
  */
 package com.mycompany.chord.client.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mycompany.chord.client.service.FingerDetailService;
 import com.mycompany.chord.client.state.ChordConfig;
 import com.mycompany.chord.client.util.RangeUtil;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
  *
  * @author Charith.S
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Node {
 	private long id;
 	private Address address;
@@ -33,7 +36,7 @@ public class Node {
 	public Node(Address address) {
 		SHA1Hasher hasher = SHA1Hasher.getInstance();
 		SHA1Hash hash = hasher.hash(address);
-		this.id = 29; //hash.getLongValue();
+		hash.getLongValue();
 		this.address = address;
 		for (int i = 0; i < ChordConfig.FINGER_TABLE_SIZE; i++) {
 			long start = (long) ((id + Math.pow(2, i)) % ChordConfig.HASH_BITS);
