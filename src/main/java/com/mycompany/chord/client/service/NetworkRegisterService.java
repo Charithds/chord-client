@@ -113,7 +113,7 @@ public class NetworkRegisterService {
         // TODO: do something for running threads
         String message = (new Message(MessageType.UNREG, ipAddress, Integer.valueOf(port), username)).getMessage();
         System.out.println(message);
-        // Sender.getInstance().sendUDPMessage(message, HostConfiguration.BOOTSTRAP_IP, HostConfiguration.BOOTSTRAP_PORT);
+        Sender.getInstance().sendUDPMessage(message, HostConfiguration.BOOTSTRAP_IP, HostConfiguration.BOOTSTRAP_PORT);
         ChordState.setJoined(false);
     }
     
