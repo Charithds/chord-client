@@ -5,66 +5,146 @@
  */
 package com.mycompany.chord.client.model;
 
-import com.mycompany.chord.client.service.ChordState;
+import com.mycompany.chord.client.service.FingerDetailService;
+import com.mycompany.chord.client.state.ChordConfig;
+import com.mycompany.chord.client.util.RangeUtil;
+import com.mycompany.chord.client.util.SHA1Hasher;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  *
  * @author Charith.S
  */
 public class Node {
-    private long id;
-    private Node successor;
-    
-    private Node findSuccessor(long id) {
-        Node node = findPredecessor(id);
-        return node.getSuccessor();
-    }
-    
-    private Node findPredecessor(long id) {
-        Node node = this;
-        while (!(id > node.getId() && id <= node.getSuccessor().getId())) {
-            node = node.closestPrecedingFinger(id);
-        }
-        return node;
-    }
-    
-    public Node closestPrecedingFinger(long id) {
-        int m = ChordState.getFingerTable().size();
-        for (int i = m-1; i <= 0; i--) {
-            Node node = ChordState.getFingerTable().get(i);
-            if(node.getId() > this.id && node.getId() < id) {
-                return node;
-            }
-        }
-        return this;
-    }
+	private long id;
+	private Address address;
 
-    /**
-     * @return the id
-     */
-    public long getId() {
-        return id;
-    }
+	private List<Finger> fingers = new ArrayList<Finger>(ChordConfig.FINGER_TABLE_SIZE);
+	private List<Long> fingerStarts = new ArrayList<Long>(ChordConfig.FINGER_TABLE_SIZE);
+	private List<Long> fingerIntervals = new ArrayList<Long>(ChordConfig.FINGER_TABLE_SIZE);
+//	private Finger successor;
+	private Finger predecessor;
 
-    /**
-     * @param id the id to set
-     */
-    public void setId(long id) {
-        this.id = id;
-    }
+	public Node() {
+		this.id = -1;
+	}
 
-    /**
-     * @return the successor
-     */
-    public Node getSuccessor() {
-        return successor;
-    }
+	public Node(Address address) {
+		SHA1Hasher hasher = SHA1Hasher.getInstance();
+		SHA1Hash hash = hasher.hash(address);
+		this.id = 29; //hash.getLongValue();
+		this.address = address;
+		for (int i = 0; i < ChordConfig.FINGER_TABLE_SIZE; i++) {
+			long start = (long) ((id + Math.pow(2, i)) % ChordConfig.HASH_BITS);
+			fingerStarts.add(start);
+		}
+		for (int i = 0; i < ChordConfig.FINGER_TABLE_SIZE - 1; i++) {
+			fingerIntervals.add(fingerStarts.get(i+1) - fingerStarts.get(i));
+		}
+	}
 
-    /**
-     * @param successor the successor to set
-     */
-    public void setSuccessor(Node successor) {
-        this.successor = successor;
-    }
-    
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public Address getAddress() {
+		return address;
+	}
+
+	public void setAddress(Address address) {
+		this.address = address;
+	}
+
+	public List<Finger> getFingers() {
+		return fingers;
+	}
+
+	public void setFingers(List<Finger> fingers) {
+		this.fingers = fingers;
+	}
+
+	public List<Long> getFingerStarts() {
+		return fingerStarts;
+	}
+
+	public void setFingerStarts(List<Long> fingerStarts) {
+		this.fingerStarts = fingerStarts;
+	}
+
+	public List<Long> getFingerIntervals() {
+		return fingerIntervals;
+	}
+
+	public void setFingerIntervals(List<Long> fingerIntervals) {
+		this.fingerIntervals = fingerIntervals;
+	}
+
+	public Finger getSuccessor() {
+		return fingers.get(0);
+	}
+
+//	public void setSuccessor(Finger successor) {
+//		this.successor = successor;
+//	}
+
+	public Finger getPredecessor() {
+		return predecessor;
+	}
+
+	public void setPredecessor(Finger predecessor) {
+		this.predecessor = predecessor;
+	}
+
+	public Finger findSuccessor(long id) {
+		Node node = findPredecessor(id);
+		return node.getSuccessor();
+	}
+
+	public Node findPredecessor(long id) {
+		Node node = this;
+		while (RangeUtil.predecessorContition(id, node)) {
+			node = node.closestPrecedingFinger(id);
+		}
+		return node;
+	}
+
+	public Node closestPrecedingFinger(long id) {
+		int m = ChordConfig.FINGER_TABLE_SIZE;
+		for (int i = m-1; i >= 0; i--) {
+			Finger node = fingers.get(i);
+			if(RangeUtil.closestPrecedingContition(node.getNode(), this.id, id)) {
+				return FingerDetailService.getFingerDetails(node);
+			}
+		}
+		return this;
+	}
+
+	public void updateFingerTable(long n, int i, String ip, int port) {
+		if (n >= this.id && n < fingers.get(i).getNode()) {
+			Address address = new Address("", ip, port);
+			Node fingerDetails = FingerDetailService.getFingerDetails(address);
+			fingers.set(i, fingerDetails.convertToFinger());
+			FingerDetailService.updateFingerTable(predecessor.getAddress(), n, i, fingerDetails);
+		}
+	}
+
+	public Finger convertToFinger() {
+		Finger finger = new Finger();
+		finger.setAddress(this.address);
+		finger.setNode(this.id);
+		return finger;
+	}
+
+	public void updatePredecessor(long id, String ip, int port) {
+		Address address = new Address(null, ip, port);
+		Finger finger = new Finger();
+		finger.setAddress(address);
+		finger.setNode(id);
+		this.predecessor = finger;
+	}
 }

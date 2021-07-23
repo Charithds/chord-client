@@ -6,7 +6,7 @@
 package com.mycompany.chord.client.others;
 
 import com.mycompany.chord.client.constant.HostConfiguration;
-import com.mycompany.chord.client.service.ChordState;
+import com.mycompany.chord.client.state.UserConfig;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -46,8 +46,8 @@ public class Sender {
             byte[] toSend  = message.getBytes(); 
 		  
             DatagramPacket packet =new DatagramPacket(toSend, toSend.length, IPAddress, peerPort); 
-            System.out.println("sending message:" + message + "\nfrom-" + ChordState.getMyIP() + ":" +
-                               ChordState.getPort() + ",to-" + peerIp + ":" + peerPort);
+            System.out.println("sending message:" + message + "\nfrom-" + UserConfig.getIp()+ ":" +
+                               UserConfig.getPort() + ",to-" + peerIp + ":" + peerPort);
             clientSocket.send(packet);
             
             byte[] receive = new byte[65535]; 

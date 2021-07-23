@@ -5,31 +5,23 @@
  */
 package com.mycompany.chord.client.model;
 
-import com.mycompany.chord.client.others.SHA1Hasher;
-
 public class Finger {
-    private String address;
-    private int port;
-    private long id;
-    
-    public Finger(String address, int port) {
-        this.address = address;
-        this.port = port;
+	private Address address;
+	private Long node;
 
-        // Hash address:port
-        SHA1Hasher sha1Hasher = new SHA1Hasher(this.address + ":" + this.port);
-        this.id = sha1Hasher.getLong();
-    }
+	public Address getAddress() {
+		return address;
+	}
 
-    public String getAddress() {
-        return this.address;
-    }
+	public void setAddress(Address address) {
+		this.address = address;
+	}
 
-    public int getPort() {
-        return this.port;
-    }
+	public Long getNode() {
+		return node;
+	}
 
-    public long getId() {
-        return this.id;
-    }
+	public void setNode(Long node) {
+		this.node = node;
+	}
 }

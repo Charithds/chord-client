@@ -129,6 +129,7 @@ public class FingerTableFrame extends javax.swing.JFrame {
         
         BigInteger bigQuery = BigInteger.valueOf(2L);
         BigInteger bigSelfId = BigInteger.valueOf(id);
+        /*
         for (int i = 0; i < 32; i++) {
             BigInteger bigResult = bigQuery.pow(i);
             bigResult = bigResult.add(bigSelfId);
@@ -138,7 +139,7 @@ public class FingerTableFrame extends javax.swing.JFrame {
             }
             String[] data = {idFinger + "", fingerMap.get(i).getId()+"", fingerMap.get(i).getAddress(), fingerMap.get(i).getPort()+""};
             model.addRow(data);
-        }
+        }*/
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

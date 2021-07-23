@@ -5,28 +5,20 @@
  */
 package com.mycompany.chord.client.ui;
 
-import com.mycompany.chord.client.others.ChordThread;
 import com.mycompany.chord.client.model.Finger;
 import com.mycompany.chord.client.constant.HostConfiguration;
 import com.mycompany.chord.client.others.Message;
 import com.mycompany.chord.client.constant.MessageType;
-import com.mycompany.chord.client.others.Node;
-import com.mycompany.chord.client.others.NodeStabilizer;
+import com.mycompany.chord.client.model.Node;
 import com.mycompany.chord.client.others.RegisterResponse;
-import com.mycompany.chord.client.others.SHA1Hasher;
 import com.mycompany.chord.client.others.Sender;
 import com.mycompany.chord.client.service.ChordFileSearch;
-import com.mycompany.chord.client.service.FileDownloadUtility;
 import java.awt.Color;
 import java.awt.Container;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +39,6 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -58,8 +49,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
-import static com.mycompany.chord.client.others.Sender.data;
-import com.mycompany.chord.client.service.ChordState;
+import com.mycompany.chord.client.util.SHA1Hasher;
 
 public class ChordMainFrame extends JFrame {
     private static final long serialVersionUID = 6529685098267757690L;
@@ -101,7 +91,7 @@ public class ChordMainFrame extends JFrame {
         {
             listModel.addElement(zNames.get(i));
             fileList.add(zNames.get(i));
-            keyList[i] = new SHA1Hasher(zNames.get(i)).getLong();
+            keyList[i] = SHA1Hasher.getInstance().hash(zNames.get(i)).getLongValue();
         }
         lstSharedFiles.setModel(listModel);
     }
@@ -495,7 +485,7 @@ public class ChordMainFrame extends JFrame {
 
     private void menuItemFingerTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemFingerTableActionPerformed
         FingerTableFrame fingerView = new FingerTableFrame();
-        fingerView.setData(node.getId(), node.getFingers());
+//        fingerView.setData(node.getId(), node.getFingers());
         fingerView.setVisible(true);
         fingerView.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }//GEN-LAST:event_menuItemFingerTableActionPerformed
@@ -517,125 +507,127 @@ public class ChordMainFrame extends JFrame {
     }//GEN-LAST:event_txtFileNameActionPerformed
 
     private void btnJoinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnJoinActionPerformed
-        HostConfiguration.BOOTSTRAP_IP = txtBSIP.getText();
-        HostConfiguration.BOOTSTRAP_PORT = Integer.valueOf(txtBSPort.getText());
-        //HostConfiguration.MY_IP = txtIP.getText();
-        HostConfiguration.MY_NAME = txtUsername.getText();
-        //HostConfiguration.MY_PORT = Integer.valueOf(txtPort.getText());
-
-        RegisterResponse regRes = register();
-        if(!regRes.isInitialNode())
-        {
-            node = new Node(txtIP.getText(), txtPort.getText(), regRes.getPeerIps(), regRes.getpeerPorts());
-        }
-        else
-        {
-            node = new Node(txtIP.getText(), txtPort.getText());
-        }
-
-        lblJoinStatus.setText(resMsg);
-
-        //Message String creation
-        String message = "ADD:";
-
-        message = message + String.join(":", fileList);
-
-        for(int i = 0; i < keyList.length; i++)
-        {
-            List<Finger> lst = new ArrayList<>();
-            lst.add(new Finger(txtIP.getText(), Integer.valueOf(txtPort.getText())));
-            keys.put(keyList[i]+"", lst);
-
-            //message.concat(keyList[i]+":");
-        }
-
-
-        node.setKeys(keys);
-
-        chordFileSearch = ChordState.getChordFileSearch();
-
-
-        //publish to index server
-        InetAddress IPAddress1;
-        try {
-            DatagramSocket socket= new DatagramSocket();
-            byte[] toSend1  = message.getBytes();
-            IPAddress1 = InetAddress.getByName(txtISIP.getText());
-            DatagramPacket packet =new DatagramPacket(toSend1, toSend1.length, IPAddress1, Integer.parseInt(txtISPort.getText()));
-            socket.send(packet);
-        } catch (UnknownHostException ex) {
-            Logger.getLogger(NodeStabilizer.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(ChordMainFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        HostConfiguration.BOOTSTRAP_IP = txtBSIP.getText();
+//        HostConfiguration.BOOTSTRAP_PORT = Integer.valueOf(txtBSPort.getText());
+//        //HostConfiguration.MY_IP = txtIP.getText();
+//        HostConfiguration.MY_NAME = txtUsername.getText();
+//        //HostConfiguration.MY_PORT = Integer.valueOf(txtPort.getText());
+//
+//        RegisterResponse regRes = register();
+//        if(!regRes.isInitialNode())
+//        {
+//            node = new Node(txtIP.getText(), txtPort.getText(), regRes.getPeerIps(), regRes.getpeerPorts());
+//        }
+//        else
+//        {
+//            node = new Node(txtIP.getText(), txtPort.getText());
+//        }
+//
+//        lblJoinStatus.setText(resMsg);
+//
+//        //Message String creation
+//        String message = "ADD:";
+//
+//        message = message + String.join(":", fileList);
+//
+//        /*
+//        for(int i = 0; i < keyList.length; i++)
+//        {
+//            List<Finger> lst = new ArrayList<>();
+//            lst.add(new Finger(txtIP.getText(), Integer.valueOf(txtPort.getText())));
+//            keys.put(keyList[i]+"", lst);
+//
+//            //message.concat(keyList[i]+":");
+//        }
+//        */
+//
+//
+//        node.setKeys(keys);
+//
+//        chordFileSearch = ChordFileSearch.getInstance();
+//
+//
+//        //publish to index server
+//        InetAddress IPAddress1;
+//        try {
+//            DatagramSocket socket= new DatagramSocket();
+//            byte[] toSend1  = message.getBytes();
+//            IPAddress1 = InetAddress.getByName(txtISIP.getText());
+//            DatagramPacket packet =new DatagramPacket(toSend1, toSend1.length, IPAddress1, Integer.parseInt(txtISPort.getText()));
+//            socket.send(packet);
+//        } catch (UnknownHostException ex) {
+//            Logger.getLogger(NodeStabilizer.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (IOException ex) {
+//            Logger.getLogger(ChordMainFrame.class.getName()).log(Level.SEVERE, null, ex);
+//        }
 
     }//GEN-LAST:event_btnJoinActionPerformed
 
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
-        try {
-            DefaultTableModel searchResultsDataModel = (DefaultTableModel) tblSearchResults.getModel();
-
-            while (searchResultsDataModel.getRowCount()>0)
-            {
-               searchResultsDataModel.removeRow(0);
-            }
-
-            //Contact Index Server and Get Node List
-            String fileQuery = txtFileName.getText().trim();
-            String searchMessage = "SER:"+fileQuery;
-
-            DatagramSocket socket = new DatagramSocket();
-            byte[] toSend  = searchMessage.getBytes();
-            InetAddress IPAddress;
-                try {
-                    IPAddress = InetAddress.getByName(txtISIP.getText());
-                    DatagramPacket packet =new DatagramPacket(toSend, toSend.length, IPAddress, Integer.valueOf(txtISPort.getText()));
-                    try {
-                        socket.send(packet);
-                    } catch (IOException ex) {
-                        Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                } catch (UnknownHostException ex) {
-                    Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-            System.out.println("Sent: " + searchMessage);
-
-            byte[] receive = new byte[65535];
-            DatagramPacket DpReceive = new DatagramPacket(receive, receive.length);
-            try {
-                socket.receive(DpReceive);
-            } catch (IOException ex) {
-                Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-            // Read response from chord
-            String serverResponse = data(receive).toString();
-            System.out.println("Received: " + serverResponse);
-
-
-            String[] serverResponseSegments = serverResponse.split(":");
-            if(serverResponseSegments[0].equals("SEARCH_RES")){
-
-                int searchResultCount = Integer.valueOf(serverResponseSegments[1]);
-
-                int i=2;
-                String fileName = "";
-                String peerCount = "";
-
-                while(i<serverResponseSegments.length){
-                    fileName = serverResponseSegments[i];
-                    peerCount = serverResponseSegments[i+1];
-                    String[] dataRow = {fileName, peerCount};
-                    searchResultsDataModel.addRow(dataRow);
-                    i=i+2;
-                }
-
-            }
-
-        }catch(Exception e){
-            System.err.println(e);
-        }
+//        try {
+//            DefaultTableModel searchResultsDataModel = (DefaultTableModel) tblSearchResults.getModel();
+//
+//            while (searchResultsDataModel.getRowCount()>0)
+//            {
+//               searchResultsDataModel.removeRow(0);
+//            }
+//
+//            //Contact Index Server and Get Node List
+//            String fileQuery = txtFileName.getText().trim();
+//            String searchMessage = "SER:"+fileQuery;
+//
+//            DatagramSocket socket = new DatagramSocket();
+//            byte[] toSend  = searchMessage.getBytes();
+//            InetAddress IPAddress;
+//                try {
+//                    IPAddress = InetAddress.getByName(txtISIP.getText());
+//                    DatagramPacket packet =new DatagramPacket(toSend, toSend.length, IPAddress, Integer.valueOf(txtISPort.getText()));
+//                    try {
+//                        socket.send(packet);
+//                    } catch (IOException ex) {
+//                        Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+//                } catch (UnknownHostException ex) {
+//                    Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//
+//            System.out.println("Sent: " + searchMessage);
+//
+//            byte[] receive = new byte[65535];
+//            DatagramPacket DpReceive = new DatagramPacket(receive, receive.length);
+//            try {
+//                socket.receive(DpReceive);
+//            } catch (IOException ex) {
+//                Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//
+//            // Read response from chord
+//            String serverResponse = data(receive).toString();
+//            System.out.println("Received: " + serverResponse);
+//
+//
+//            String[] serverResponseSegments = serverResponse.split(":");
+//            if(serverResponseSegments[0].equals("SEARCH_RES")){
+//
+//                int searchResultCount = Integer.valueOf(serverResponseSegments[1]);
+//
+//                int i=2;
+//                String fileName = "";
+//                String peerCount = "";
+//
+//                while(i<serverResponseSegments.length){
+//                    fileName = serverResponseSegments[i];
+//                    peerCount = serverResponseSegments[i+1];
+//                    String[] dataRow = {fileName, peerCount};
+//                    searchResultsDataModel.addRow(dataRow);
+//                    i=i+2;
+//                }
+//
+//            }
+//
+//        }catch(Exception e){
+//            System.err.println(e);
+//        }
     }//GEN-LAST:event_btnSearchActionPerformed
 
 
@@ -646,13 +638,14 @@ public class ChordMainFrame extends JFrame {
 
     private void menuItemFileKeysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuItemFileKeysActionPerformed
         ChordFileKeyFrame fileKeyFrame = new ChordFileKeyFrame();
-        fileKeyFrame.setData(node.getId(), node.getKeys());
+//        fileKeyFrame.setData(node.getId(), node.getKeys());
         fileKeyFrame.setVisible(true);
         fileKeyFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }//GEN-LAST:event_menuItemFileKeysActionPerformed
 
     private void btnDownloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDownloadActionPerformed
-        //Get File Save Path
+        /*
+//Get File Save Path
         if(txtDownloadFolder.getText()==null || txtDownloadFolder.getText().trim().equals("")){
             JOptionPane.showMessageDialog(null, "Please select a folder path", "File Download Error", JOptionPane.WARNING_MESSAGE);
             return;
@@ -705,6 +698,7 @@ public class ChordMainFrame extends JFrame {
         else{
             JOptionPane.showMessageDialog(null, "Please select a file to download", "File Download Error", JOptionPane.WARNING_MESSAGE);
         }
+        */
     }//GEN-LAST:event_btnDownloadActionPerformed
 
     private void txtDownloadFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDownloadFolderActionPerformed

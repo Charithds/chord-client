@@ -5,11 +5,9 @@
  */
 package com.mycompany.chord.client.service;
 
-import com.mycompany.chord.client.constant.HostConfiguration;
 import com.mycompany.chord.client.model.Finger;
-import com.mycompany.chord.client.others.NodeStabilizer;
-import com.mycompany.chord.client.others.SHA1Hasher;
-import com.mycompany.chord.client.ui.ChordMainFrame;
+import com.mycompany.chord.client.state.ChordState;
+import com.mycompany.chord.client.util.SHA1Hasher;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,8 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 
 /**
@@ -71,7 +67,7 @@ public class FileSharingService {
         {
             listModel.addElement(zNames.get(i));
             fileList.add(zNames.get(i));
-            keyList.add(new SHA1Hasher(zNames.get(i)).getLong()) ;
+            keyList.add(SHA1Hasher.getInstance().hash(zNames.get(i)).getLongValue()) ;
         }
         
         ChordState.setFileList(fileList);
@@ -84,15 +80,17 @@ public class FileSharingService {
         String message = "ADD:";
         message = message + String.join(":", ChordState.getFileList());
 
+        /*
         for(int i = 0; i < ChordState.getFileList().size(); i++) {
             List<Finger> fingerList = new ArrayList<>();
-            fingerList.add(new Finger(ChordState.getNode().getAddress(), ChordState.getNode().getPort()));
+            fingerList.add(new Finger(ChordState.getNode().getAddress(), ChordState.getNode().getAddress().getPort()));
             keys.put(ChordState.getKeyList().get(i) + "", fingerList);
         }
+*/
 
-        ChordState.getNode().setKeys(keys);
+        // ChordState.getNode().setKeys(keys);
 
-        chordFileSearch = ChordState.getChordFileSearch();
+        chordFileSearch = ChordFileSearch.getInstance();
 
         //publish to index server
         InetAddress IPAddress1;
@@ -104,10 +102,10 @@ public class FileSharingService {
             socket.send(packet);
         } catch (UnknownHostException ex) {
             ex.printStackTrace();
-            Logger.getLogger(NodeStabilizer.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(NodeStabilizer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             ex.printStackTrace();
-            Logger.getLogger(ChordMainFrame.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(ChordMainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

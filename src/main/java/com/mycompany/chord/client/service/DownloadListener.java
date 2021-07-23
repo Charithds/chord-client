@@ -6,7 +6,9 @@
 
 package com.mycompany.chord.client.service;
 
-import com.mycompany.chord.client.others.Node;
+import com.mycompany.chord.client.model.Node;
+import com.mycompany.chord.client.state.ChordState;
+import com.mycompany.chord.client.state.UserConfig;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
@@ -25,16 +27,17 @@ import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 public class DownloadListener implements Runnable{
-    private Node chordNode;
-
-    public DownloadListener(Node chordNode) {
-        this.chordNode = chordNode;
-    }
+//    private Node chordNode;
+//
+//    public DownloadListener(Node chordNode) {
+//        this.chordNode = chordNode;
+//    }
 
     public void run() {
         try {
-            int serverPort = chordNode.getPort()+1000;
-            System.out.println("Starting Node "+chordNode.getAddress()+":"+chordNode.getPort()+" Download Listener on port "+serverPort);
+            Node chordNode = ChordState.getNode();
+            int serverPort = chordNode.getAddress().getPort()+1000;
+            System.out.println("Starting Node "+chordNode.getAddress().getIp()+":"+chordNode.getAddress().getPort()+" Download Listener on port "+serverPort);
             
             HttpServer server = HttpServer.create(new InetSocketAddress(serverPort), 0);
             server.createContext("/api/download", (
@@ -48,7 +51,7 @@ public class DownloadListener implements Runnable{
 
                         System.out.println("Sending File "+songName);
                         String respText = "Random Content For Song " + songName 
-                                + " from IP: " + ChordState.getMyIP() + "\n";
+                                + " from IP: " + UserConfig.getIp() + "\n";
                         respText = createDataSize(new Random().nextInt(8)+2, respText);
                         Headers responseHeaders = exchange.getResponseHeaders();
                         responseHeaders.add("Content-Type", "application/octet-stream");

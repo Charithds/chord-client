@@ -14,11 +14,12 @@ import java.net.URL;
 
 public class FileDownloadUtility {
     private static final int BUFFER_SIZE = 65535;
- 
 
-    public static void downloadFile(String fileURL, String saveDir)
+    public static void downloadFile(String ip, long port, String downlaodFileName, String saveDir)
             throws IOException {
-        URL url = new URL(fileURL);
+        String fileUrl = "http://" + ip + ":" + (port+1000) + "/api/download?file=" 
+                + downlaodFileName.replaceAll(" ", "_");
+        URL url = new URL(fileUrl);
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
         int responseCode = httpConn.getResponseCode();
  
@@ -38,8 +39,7 @@ public class FileDownloadUtility {
                 }
             } else {
                 // extracts file name from URL
-                fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1,
-                        fileURL.length());
+                fileName = downlaodFileName;
             }
  
             System.out.println("Content-Type = " + contentType);

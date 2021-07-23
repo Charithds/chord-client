@@ -108,7 +108,7 @@ public class ChordFileKeyFrame extends javax.swing.JFrame {
         lblNodeId.setText(lblNodeId.getText() + id);
         
         DefaultTableModel model = (DefaultTableModel) tblKeys.getModel();
-        
+        /*
         int size = keyMap.size();
         for (int i = 0; i < size; i++) {
             String idkey = (String)keyMap.keySet().toArray()[i];
@@ -117,7 +117,7 @@ public class ChordFileKeyFrame extends javax.swing.JFrame {
                 String[] data = {idkey, keyMap.get(idkey).get(j).getAddress(), keyMap.get(idkey).get(j).getPort()+""};
                 model.addRow(data);   
             }
-        }
+        }*/
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane2;

@@ -5,17 +5,14 @@
  */
 package com.mycompany.chord.client.ui;
 
-import com.mycompany.chord.client.constant.HostConfiguration;
+import com.mycompany.chord.client.model.Address;
 import com.mycompany.chord.client.model.Finger;
-import com.mycompany.chord.client.others.ChordThread;
-import com.mycompany.chord.client.others.Node;
 import static com.mycompany.chord.client.others.Sender.data;
 import com.mycompany.chord.client.service.ChordFileSearch;
-import com.mycompany.chord.client.service.ChordState;
 import com.mycompany.chord.client.service.FileDownloadUtility;
 import com.mycompany.chord.client.service.FileSharingService;
 import com.mycompany.chord.client.service.NetworkRegisterService;
-import static com.mycompany.chord.client.ui.ChordMainFrame.getRandomIntegerBetweenRange;
+import com.mycompany.chord.client.state.ChordState;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -27,11 +24,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
-import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 /**
  *
@@ -64,7 +59,7 @@ public class ChordClientUI extends javax.swing.JFrame {
     public void setNodesData(long id, Map<String, List<Finger>> keyMap)
     {
         //lblNodeId.setText(lblNodeId.getText() + id);
-        
+        /*
         DefaultTableModel model = (DefaultTableModel) nodesTable.getModel();
         
         int size = keyMap.size();
@@ -76,6 +71,7 @@ public class ChordClientUI extends javax.swing.JFrame {
                 model.addRow(data);   
             }
         }
+        */
     }
 
     /**
@@ -619,12 +615,14 @@ public class ChordClientUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void updateSharedFiles() {
+        /*
         List<String> fileList = ChordState.getFileList();
         DefaultListModel listModel = new DefaultListModel();
         if (fileList != null) {
             listModel.addAll(fileList);
         }
         sharedFilesList.setModel(listModel);
+        */
     }
     
     private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed
@@ -681,10 +679,12 @@ public class ChordClientUI extends javax.swing.JFrame {
                     try {
                         socket.send(packet);
                     } catch (IOException ex) {
-                        Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
+                        ex.printStackTrace();
+//                        Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } catch (UnknownHostException ex) {
-                    Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
+                    ex.printStackTrace();
+//                    Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
             System.out.println("Sent: " + searchMessage);
@@ -694,7 +694,8 @@ public class ChordClientUI extends javax.swing.JFrame {
             try {
                 socket.receive(DpReceive);
             } catch (IOException ex) {
-                Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
+//                Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace();
             }
 
             // Read response from chord
@@ -733,28 +734,23 @@ public class ChordClientUI extends javax.swing.JFrame {
         if(selectedRow!=-1){
             String fullFileName = filesTable.getModel().getValueAt(selectedRow, 0).toString();
             //String fullFileName = txtFileName.getText()
-            List<Finger> peers = ChordState.getChordFileSearch().searchFile(fullFileName);
-            if(peers!=null && peers.size()>0)
-            {
+            Address address = ChordFileSearch.getInstance().searchFile(fullFileName);
+            if(address != null) {
                 List<String> nodeList = new ArrayList<>();
-                peers.forEach(peer->{
-                    nodeList.add(peer.getAddress()+":"+peer.getPort());
-                });
-                String peerListStr = String.join(", ", nodeList);
-                //JOptionPane.showMessageDialog(null, "File Found at Peers - "+ peerListStr, "File Download", JOptionPane.INFORMATION_MESSAGE);
+                String peerListStr = address.getIp()+":"+address.getPort();
 
-
-                int dialogResult = JOptionPane.showConfirmDialog (null, "File Found at Peers - "+ peerListStr+ ". Do you want to download from a random node?","Download Confirmation",JOptionPane.YES_NO_OPTION);
+                int dialogResult = JOptionPane.showConfirmDialog (null, 
+                        "File should be there at address: "+ peerListStr+ ". Do you want to download from a random node?","Download Confirmation",JOptionPane.YES_NO_OPTION);
                 if(dialogResult == JOptionPane.YES_OPTION){
-                    //TODO: Do Download Here
-                    int randomNodeId = getRandomIntegerBetweenRange(0, nodeList.size()-1);
-                    Finger selectedPeer = peers.get(randomNodeId);
-                    int downloadPort = selectedPeer.getPort()+1000;
-                    String fileDownloadURL = "http://" + selectedPeer.getAddress() + ":"+downloadPort+"/api/download?file="+fullFileName.replaceAll(" ", "");
-                    System.out.println("File is Downloading from "+fileDownloadURL+ " to "+ChordState.getDownloadPath());
+                    
+//                    int randomNodeId = getRandomIntegerBetweenRange(0, nodeList.size()-1);
+//                    Finger selectedPeer = peers.get(randomNodeId);
+//                    int downloadPort = selectedPeer.getPort()+1000;
+//                    String fileDownloadURL = "http://" + selectedPeer.getAddress() + ":"+downloadPort+"/api/download?file="+fullFileName.replaceAll(" ", "");
+//                    System.out.println("File is Downloading from "+fileDownloadURL+ " to "+ChordState.getDownloadPath());
                     try {
-                        FileDownloadUtility.downloadFile(fileDownloadURL, ChordState.getDownloadPath());
-                        JOptionPane.showMessageDialog(null, "File downloaded successfuly from node "+selectedPeer.getAddress()+":"+selectedPeer.getPort(), "File Download Successful", JOptionPane.INFORMATION_MESSAGE);
+                        FileDownloadUtility.downloadFile(address.getIp(), address.getPort(), fullFileName, ChordState.getDownloadPath());
+                        JOptionPane.showMessageDialog(null, "File downloaded successfuly from node "+address.getIp()+":"+address.getPort(), "File Download Successful", JOptionPane.INFORMATION_MESSAGE);
 
                     } catch (IOException ex) {
                         JOptionPane.showMessageDialog(null, "File Not Found", "File Download Error", JOptionPane.WARNING_MESSAGE);

@@ -7,9 +7,11 @@ package com.mycompany.chord.client.service;
 
 import com.mycompany.chord.client.constant.HostConfiguration;
 import com.mycompany.chord.client.constant.MessageType;
+import com.mycompany.chord.client.model.Address;
 import com.mycompany.chord.client.others.Message;
-import com.mycompany.chord.client.others.Node;
 import com.mycompany.chord.client.others.Sender;
+import com.mycompany.chord.client.state.ChordState;
+import com.mycompany.chord.client.state.UserConfig;
 import java.util.logging.Logger;
 
 /**
@@ -96,21 +98,21 @@ public class NetworkRegisterService {
     }
     
     private void initializeNodes(String myIP, String myPort, String[] peerIps, int[] peerPorts) {
-        ChordState.setMyIP(myIP);
-        ChordState.setPort(Integer.parseInt(myPort));
+        UserConfig.setIp(myIP);
+        UserConfig.setPort(Integer.parseInt(myPort));
         if (peerIps == null) {
-            ChordState.setNode(new Node(myIP, myPort));
+            NetworkJoinService.getInstance().join(null);
         } else {
-            ChordState.setNode(new Node(myIP, myPort, peerIps, peerPorts));
+            Address address = new Address(null, peerIps[0], peerPorts[0]);
+            NetworkJoinService.getInstance().join(address);
         }
-        ChordState.setChordFileSearch(ChordFileSearch.getInstance(ChordState.getNode()));
     }
     
     public void unreg(String username, String ipAddress, String port) {
         // TODO: do something for running threads
         String message = (new Message(MessageType.UNREG, ipAddress, Integer.valueOf(port), username)).getMessage();
         System.out.println(message);
-        Sender.getInstance().sendUDPMessage(message, HostConfiguration.BOOTSTRAP_IP, HostConfiguration.BOOTSTRAP_PORT);
+        // Sender.getInstance().sendUDPMessage(message, HostConfiguration.BOOTSTRAP_IP, HostConfiguration.BOOTSTRAP_PORT);
         ChordState.setJoined(false);
     }
     
