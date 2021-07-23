@@ -71,7 +71,7 @@ public class ChordMainFrame extends JFrame {
         ArrayList<String> zNames = new ArrayList<>();
         try {
 
-            File myObj = new File(new File("").getAbsolutePath()+"\\resources\\FileNames.txt");
+            File myObj = new File(new File("").getAbsolutePath()+"/resources/FileNames.txt");
 
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {

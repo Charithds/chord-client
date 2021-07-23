@@ -121,7 +121,8 @@ public class Node {
 		for (int i = m-1; i >= 0; i--) {
 			Finger node = fingers.get(i);
 			if(RangeUtil.closestPrecedingContition(node.getNode(), this.id, id)) {
-				return FingerDetailService.getFingerDetails(node);
+                            System.out.println("Forwarded: node");
+                            return FingerDetailService.getFingerDetails(node);
 			}
 		}
 		return this;
