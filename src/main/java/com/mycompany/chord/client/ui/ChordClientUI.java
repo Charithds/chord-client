@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -59,7 +60,7 @@ public class ChordClientUI extends javax.swing.JFrame {
     public void setNodesData(long id, Map<String, List<Finger>> keyMap)
     {
         //lblNodeId.setText(lblNodeId.getText() + id);
-        /*
+        
         DefaultTableModel model = (DefaultTableModel) nodesTable.getModel();
         
         int size = keyMap.size();
@@ -67,11 +68,10 @@ public class ChordClientUI extends javax.swing.JFrame {
             String idkey = (String)keyMap.keySet().toArray()[i];
             for(int j = 0; j < keyMap.get(idkey).size(); j++)
             {
-                String[] data = {idkey, keyMap.get(idkey).get(j).getAddress(), keyMap.get(idkey).get(j).getPort()+""};
+                String[] data = {idkey, keyMap.get(idkey).get(j).getAddress().getIp(), keyMap.get(idkey).get(j).getAddress().getPort()+""};
                 model.addRow(data);   
             }
         }
-        */
     }
 
     /**
@@ -615,14 +615,12 @@ public class ChordClientUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void updateSharedFiles() {
-        /*
         List<String> fileList = ChordState.getFileList();
         DefaultListModel listModel = new DefaultListModel();
         if (fileList != null) {
             listModel.addAll(fileList);
         }
         sharedFilesList.setModel(listModel);
-        */
     }
     
     private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed
