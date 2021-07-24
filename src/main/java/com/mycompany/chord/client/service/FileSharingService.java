@@ -139,6 +139,30 @@ public class FileSharingService {
         }
     }
     
+    public void moveFilesToSuccessor() {
+        List<String> fileList = ChordState.getFileList();
+        List<Long> keyList = ChordState.getKeyList();
+        if (fileList != null) {
+            Set<String> removedFiles = new HashSet<>();
+            Set<Long> removedKeys = new HashSet<>();
+            
+            for (int i = 0; i < fileList.size(); i++) {
+                String file = fileList.get(i);
+                long key = keyList.get(i);
+                Finger successor = ChordState.getNode().getSuccessor();
+                if (successor.getNode() != ChordState.getNode().getId()) {
+                    FingerDetailService.addFileToNode(successor.getAddress(), file.replaceAll(" ", "_"), key);
+                    removedFiles.add(file);
+                    removedKeys.add(key);
+                }
+            }
+            if(!removedFiles.isEmpty()) {
+                fileList.removeAll(removedFiles);
+                keyList.removeAll(removedKeys);
+            }
+        }
+    }
+    
     public void addFileToNode(String file, Long key) {
         List<String> fileList = ChordState.getFileList();
         if (!fileList.contains(file)) {

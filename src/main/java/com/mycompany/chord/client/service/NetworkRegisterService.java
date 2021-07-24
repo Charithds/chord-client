@@ -117,6 +117,9 @@ public class NetworkRegisterService {
         System.out.println(message);
         Sender.getInstance().sendUDPMessage(message, HostConfiguration.BOOTSTRAP_IP, HostConfiguration.BOOTSTRAP_PORT);
         NetworkJoinService.getInstance().unreg();
+        
+        FileSharingService.getInstance().moveFilesToSuccessor();
+        
         ChordState.setJoined(false);
         ChordState.getNodeDataServer().stop();
     }
