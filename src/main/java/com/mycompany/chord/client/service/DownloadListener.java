@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.mycompany.chord.client.service;
 
 import com.mycompany.chord.client.model.Node;
@@ -26,7 +25,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
-public class DownloadListener implements Runnable{
+public class DownloadListener implements Runnable {
 //    private Node chordNode;
 //
 //    public DownloadListener(Node chordNode) {
@@ -36,62 +35,70 @@ public class DownloadListener implements Runnable{
     public void run() {
         try {
             // Node chordNode = ChordState.getNode();
-            int serverPort = UserConfig.getPort()+1000;
-            System.out.println("Starting Node "+UserConfig.getIp()+":"+UserConfig.getPort()+" Download Listener on port "+serverPort);
-            
+            int serverPort = UserConfig.getPort() + 1000;
+            System.out.println("Starting Node " + UserConfig.getIp() + ":" + UserConfig.getPort() + " Download Listener on port " + serverPort);
+
             HttpServer server = HttpServer.create(new InetSocketAddress(serverPort), 0);
-            server.createContext("/api/download", (
-                    exchange -> {
-
-                        //Get Filename
-                        Map<String, List<String>> params = splitQuery(exchange.getRequestURI().getRawQuery());
-                        String noNameText = "Anonymous";
-                        String name = params.get("file").get(0);
-                        String songName = String.format("%s.mp3", name.replace(" ",""));
-
-                        System.out.println("Sending File "+songName);
-                        String respText = "Random Content For Song " + songName 
-                                + " from IP: " + UserConfig.getIp() + "\n";
-                        respText = createDataSize(new Random().nextInt(8)+2, respText);
-                        Headers responseHeaders = exchange.getResponseHeaders();
-                        responseHeaders.add("Content-Type", "application/octet-stream");
-                        responseHeaders.add("Content-Disposition", "attachment;filename="+songName);
-
-                        //Sending File
-                        exchange.sendResponseHeaders(200, respText.getBytes().length);
-                        OutputStream output = exchange.getResponseBody();
-                        output.write(respText.getBytes());
-                        output.flush();
-                        exchange.close();
+            server.createContext("/api/download", (exchange -> {
+                //Get Filename
+                Map<String, List<String>> params = splitQuery(exchange.getRequestURI().getRawQuery());
+                String name = params.get("file").get(0);
+                
+                List<String> fileList = ChordState.getFileList();
+                long fileHash = 0;
+                if (fileList != null) {
+                    for (int i = 0; i < fileList.size(); i++) {
+                        if (fileList.get(i).replaceAll(" ", "_").equals(name)) {
+                            fileHash = ChordState.getKeyList().get(i);
+                        }
                     }
-                )
+                }
+
+                String noNameText = "Anonymous";
+                String songName = String.format("%s.mp3", name.replaceAll(" ", "_"));
+
+                System.out.println("Sending File " + songName);
+                String respText = "Random Content For Song " + songName
+                        + " from IP: " + UserConfig.getIp() + "\n";
+                respText = createDataSize((int) (fileHash % 8 + 2), respText);
+                Headers responseHeaders = exchange.getResponseHeaders();
+                responseHeaders.add("Content-Type", "application/octet-stream");
+                responseHeaders.add("Content-Disposition", "attachment;filename=" + songName);
+
+                //Sending File
+                exchange.sendResponseHeaders(200, respText.getBytes().length);
+                OutputStream output = exchange.getResponseBody();
+                output.write(respText.getBytes());
+                output.flush();
+                exchange.close();
+            })
             );
-        server.setExecutor(null); // creates a default executor
-        server.start();
-            
+            server.setExecutor(null); // creates a default executor
+            server.start();
+
         } catch (IOException e) {
             System.err.println("error when downlod thread listening for connections");
         }
     }
-    
+
     private static String createDataSize(int msgSize, String content) {
         // Java chars are 2 bytes
-        msgSize = msgSize * 1024 * 1024/content.length();
+        msgSize = msgSize * 1024 * 1024 / content.length();
         StringBuilder sb = new StringBuilder(msgSize);
-        for (int i=0; i<msgSize; i++) {
+        for (int i = 0; i < msgSize; i++) {
             sb.append(content);
         }
         return sb.toString();
     }
-    
+
     public Map<String, List<String>> splitQuery(String query) {
         if (query == null || "".equals(query)) {
             return Collections.emptyMap();
         }
 
         return Pattern.compile("&").splitAsStream(query)
-            .map(s -> Arrays.copyOf(s.split("="), 2))
-            .collect(groupingBy(s -> decode(s[0]), mapping(s -> decode(s[1]), toList())));
+                .map(s -> Arrays.copyOf(s.split("="), 2))
+                .collect(groupingBy(s -> decode(s[0]), mapping(s -> decode(s[1]), toList())));
 
     }
 

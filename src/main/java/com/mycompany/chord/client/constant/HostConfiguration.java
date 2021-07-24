@@ -23,7 +23,8 @@ public class HostConfiguration
     public static int noOfNodes = 1;
     public static int myNodeNumber = 0;
     
-    public static  int BOOTSTRAP_PORT =  55555;
+    public static  int BOOTSTRAP_PORT =  5555;
+    public static  int INDEX_PORT =  55555;
     public static ArrayList<String> availableFiles = new ArrayList<>(); 
    
     public static int TTL = 10;

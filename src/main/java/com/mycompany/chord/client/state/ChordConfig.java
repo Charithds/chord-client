@@ -10,6 +10,6 @@ package com.mycompany.chord.client.state;
  * @author Charith.S
  */
 public class ChordConfig {
-    public static final int FINGER_TABLE_SIZE = 3;
-    public static final int HASH_BITS = 32;
+    public static final int FINGER_TABLE_SIZE = 2;
+    public static final int HASH_BITS = 2*2*2*2*2*2*2*2*2*2;
 }

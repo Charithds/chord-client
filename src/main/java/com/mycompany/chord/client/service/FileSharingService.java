@@ -18,10 +18,12 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Set;
 import javax.swing.DefaultListModel;
 
 /**
@@ -29,51 +31,54 @@ import javax.swing.DefaultListModel;
  * @author Charith.S
  */
 public class FileSharingService {
+
     private static FileSharingService me;
-    private FileSharingService() { }
+
+    private FileSharingService() {
+    }
+
     public static FileSharingService getInstance() {
         if (me == null) {
             me = new FileSharingService();
         }
         return me;
     }
-    
+
     private ChordFileSearch chordFileSearch;
-    
+
     public void initializeFilesShared() {
         DefaultListModel listModel = new DefaultListModel();
         List<String> fileList = new ArrayList<>();
 
         ArrayList<String> zNames = new ArrayList<>();
         try {
-            File myObj = new File(new File("").getAbsolutePath()+"\\resources\\FileNames.txt");
+            File myObj = new File(new File("").getAbsolutePath() + "\\resources\\FileNames.txt");
 
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
                 zNames.add(data);
-        }
-        myReader.close();
+            }
+            myReader.close();
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
-        
+
         Random rand = new Random();
         Collections.shuffle(zNames);
-        int size = rand.nextInt(5)+ 1;
+        int size = rand.nextInt(3) + 3;
         List<Long> keyList = new ArrayList<>(size);
-        for(int i = 0; i < size ; i++)
-        {
+        for (int i = 0; i < size; i++) {
             listModel.addElement(zNames.get(i));
             fileList.add(zNames.get(i));
-            keyList.add(SHA1Hasher.getInstance().hash(zNames.get(i)).getLongValue()) ;
+            keyList.add(SHA1Hasher.getInstance().hash(zNames.get(i)).getLongValue());
         }
-        
+
         ChordState.setFileList(fileList);
         ChordState.setKeyList(keyList);
     }
-    
+
     public void publishToIndexServer() {
         Map<String, List<Finger>> keys = new HashMap<>();
         //Message String creation
@@ -86,19 +91,17 @@ public class FileSharingService {
             fingerList.add(new Finger(ChordState.getNode().getAddress(), ChordState.getNode().getAddress().getPort()));
             keys.put(ChordState.getKeyList().get(i) + "", fingerList);
         }
-*/
-
+         */
         // ChordState.getNode().setKeys(keys);
-
         chordFileSearch = ChordFileSearch.getInstance();
 
         //publish to index server
         InetAddress IPAddress1;
         try {
-            DatagramSocket socket= new DatagramSocket();
-            byte[] toSend1  = message.getBytes();
+            DatagramSocket socket = new DatagramSocket();
+            byte[] toSend1 = message.getBytes();
             IPAddress1 = InetAddress.getByName("127.0.0.1");
-            DatagramPacket packet =new DatagramPacket(toSend1, toSend1.length, IPAddress1, 4444);
+            DatagramPacket packet = new DatagramPacket(toSend1, toSend1.length, IPAddress1, 4444);
             socket.send(packet);
         } catch (UnknownHostException ex) {
             ex.printStackTrace();
@@ -106,6 +109,41 @@ public class FileSharingService {
         } catch (IOException ex) {
             ex.printStackTrace();
             //Logger.getLogger(ChordMainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        publishToCorrectNodes(ChordState.getFileList(), ChordState.getKeyList());
+        if (ChordState.getNode().getId() != ChordState.getNode().getSuccessor().getNode()) {
+            FingerDetailService.publishToCorrectNodes(ChordState.getNode().getSuccessor().getAddress());
+        }
+    }
+    
+    public void publishToCorrectNodes(List<String> fileList, List<Long> keyList) {
+        if (fileList != null) {
+            Set<String> removedFiles = new HashSet<>();
+            Set<Long> removedKeys = new HashSet<>();
+            
+            for (int i = 0; i < fileList.size(); i++) {
+                String file = fileList.get(i);
+                long key = keyList.get(i);
+                Finger successor = ChordState.getNode().findSuccessor(key, 0);
+                if (successor.getNode() != ChordState.getNode().getId()) {
+                    FingerDetailService.addFileToNode(successor.getAddress(), file.replaceAll(" ", "_"), key);
+                    removedFiles.add(file);
+                    removedKeys.add(key);
+                }
+            }
+            if(!removedFiles.isEmpty()) {
+                fileList.removeAll(removedFiles);
+                keyList.removeAll(removedKeys);
+            }
+        }
+    }
+    
+    public void addFileToNode(String file, Long key) {
+        List<String> fileList = ChordState.getFileList();
+        if (!fileList.contains(file)) {
+            ChordState.getFileList().add(file);
+            ChordState.getKeyList().add(key);
         }
     }
 }

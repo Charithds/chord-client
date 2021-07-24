@@ -39,7 +39,7 @@ import javax.swing.table.DefaultTableModel;
 public class ChordClientUI extends javax.swing.JFrame {
 
     private final NetworkRegisterService networkRegisterService;
-    private final FileSharingService fileSharingService;
+    //private final FileSharingService fileSharingService;
     // private ChordFileSearch chordFileSearch;
     private JFileChooser chooser;
 
@@ -51,15 +51,11 @@ public class ChordClientUI extends javax.swing.JFrame {
     public ChordClientUI() {
         initComponents();
         networkRegisterService = NetworkRegisterService.getInstance();
-        fileSharingService = FileSharingService.getInstance();
-
-        fileSharingService.initializeFilesShared();
         // chordFileSearch = ChordState.getChordFileSearch();
         String folderPath = new java.io.File(".").getAbsolutePath();
         ChordState.setDownloadPath(folderPath);
         downloadPathLabel.setText(folderPath);
         updateSharedFiles();
-
     }
 
     public void setNodesData(long id, Map<String, List<Finger>> keyMap) {
@@ -105,9 +101,9 @@ public class ChordClientUI extends javax.swing.JFrame {
         selectFolderButton = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        sharedFilesList = new javax.swing.JList<>();
         jLabel18 = new javax.swing.JLabel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        filesTableWithColumns = new javax.swing.JTable();
         jPanel5 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -306,9 +302,25 @@ public class ChordClientUI extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Files", jPanel2);
 
-        jScrollPane1.setViewportView(sharedFilesList);
-
         jLabel18.setText("My Shared Files");
+
+        filesTableWithColumns.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "File Name", "File ID", "File Size (MB)"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Long.class, java.lang.Integer.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane5.setViewportView(filesTableWithColumns);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -316,11 +328,11 @@ public class ChordClientUI extends javax.swing.JFrame {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(jLabel18)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addComponent(jLabel18)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 395, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -329,8 +341,8 @@ public class ChordClientUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel18)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(93, Short.MAX_VALUE))
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("My Files", jPanel4);
@@ -521,7 +533,7 @@ public class ChordClientUI extends javax.swing.JFrame {
                 .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(55, Short.MAX_VALUE))
+                .addContainerGap(101, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Status", jPanel5);
@@ -564,7 +576,7 @@ public class ChordClientUI extends javax.swing.JFrame {
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel10Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -602,7 +614,7 @@ public class ChordClientUI extends javax.swing.JFrame {
             .addGroup(jPanel11Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addContainerGap(58, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Nodes", jPanel11);
@@ -630,12 +642,22 @@ public class ChordClientUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void updateSharedFiles() {
+        DefaultTableModel model = (DefaultTableModel) filesTableWithColumns.getModel();
+        model.getRowCount();
+        for (int i = model.getRowCount() - 1; i >= 0; i--) {
+            model.removeRow(i);
+        }
+        
         List<String> fileList = ChordState.getFileList();
+        List<Long> keyList = ChordState.getKeyList();
         DefaultListModel listModel = new DefaultListModel();
         if (fileList != null) {
-            listModel.addAll(fileList);
+            for (int j = 0; j < fileList.size(); j++) {
+                Object[] data = {fileList.get(j), keyList.get(j), keyList.get(j) % 8 + 2};
+                model.addRow(data);
+            }
         }
-        sharedFilesList.setModel(listModel);
+        filesTableWithColumns.setModel(model);
     }
 
     private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed
@@ -656,7 +678,7 @@ public class ChordClientUI extends javax.swing.JFrame {
                 connectedStatusLabel.setText("Connected");
                 connectButton.setText("Leave");
                 connectButton.setEnabled(true);
-                fileSharingService.publishToIndexServer();
+                FileSharingService.getInstance().publishToIndexServer();
                 // 
             } catch (Exception e) {
                 // System.out.println("Error");
@@ -757,12 +779,6 @@ public class ChordClientUI extends javax.swing.JFrame {
                 int dialogResult = JOptionPane.showConfirmDialog(null,
                         "File should be there at address: " + peerListStr + " with a hop count of: " + finger.getHopCount()+". Do you want to download?", "Download Confirmation", JOptionPane.YES_NO_OPTION);
                 if (dialogResult == JOptionPane.YES_OPTION) {
-
-//                    int randomNodeId = getRandomIntegerBetweenRange(0, nodeList.size()-1);
-//                    Finger selectedPeer = peers.get(randomNodeId);
-//                    int downloadPort = selectedPeer.getPort()+1000;
-//                    String fileDownloadURL = "http://" + selectedPeer.getAddress() + ":"+downloadPort+"/api/download?file="+fullFileName.replaceAll(" ", "");
-//                    System.out.println("File is Downloading from "+fileDownloadURL+ " to "+ChordState.getDownloadPath());
                     try {
                         long start = System.currentTimeMillis();
                         FileDownloadUtility.downloadFile(address.getIp(), address.getPort(), fullFileName, ChordState.getDownloadPath());
@@ -854,7 +870,10 @@ public class ChordClientUI extends javax.swing.JFrame {
         if (sel == 3) {
             updateFingers();
         }
-        System.out.println(sel);
+        if (sel == 1) {
+            updateSharedFiles();
+        }
+        // System.out.println(sel);
     }//GEN-LAST:event_jTabbedPane1StateChanged
 
     private void connectionFailed(String connectedStatusText) {
@@ -920,6 +939,7 @@ public class ChordClientUI extends javax.swing.JFrame {
     private javax.swing.JLabel connectedStatusLabel;
     private javax.swing.JLabel downloadPathLabel;
     private javax.swing.JTable filesTable;
+    private javax.swing.JTable filesTableWithColumns;
     private javax.swing.JTable fingerTable;
     private javax.swing.JLabel idLbl;
     private javax.swing.JLabel indexIp;
@@ -951,10 +971,10 @@ public class ChordClientUI extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollBar jScrollBar1;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
@@ -965,7 +985,6 @@ public class ChordClientUI extends javax.swing.JFrame {
     private javax.swing.JButton searchButton;
     private javax.swing.JTextField searchTextField;
     private javax.swing.JButton selectFolderButton;
-    private javax.swing.JList<String> sharedFilesList;
     private javax.swing.JLabel usernameLbl;
     private javax.swing.JTextField usernameTextField;
     // End of variables declaration//GEN-END:variables

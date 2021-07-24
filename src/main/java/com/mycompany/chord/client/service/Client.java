@@ -34,6 +34,20 @@ public class Client {
 		stopConnection();
 		return objectMapper.readValue(response, Node.class);
 	}
+        
+        public void addFileToNode(String ip, int port, String command, String file, long key) throws IOException {
+		startConnection(ip, port);
+		String response = sendMessage(command + " " + file + " " + key );
+		stopConnection();
+		// return objectMapper.readValue(response, Object.class);
+	}
+        
+        public void publishToCorrectNodes(String ip, int port, String command) throws IOException {
+		startConnection(ip, port);
+		String response = sendMessage(command);
+		stopConnection();
+		// return objectMapper.readValue(response, Object.class);
+	}
 
 	public void updateFingerTable(String ip, int port, String command, long n, int i, String sourceIp, int sourcePort)
 			throws IOException {

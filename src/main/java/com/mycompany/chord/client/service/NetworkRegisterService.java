@@ -107,6 +107,8 @@ public class NetworkRegisterService {
             Address address = new Address(null, peerIps[0], peerPorts[0]);
             NetworkJoinService.getInstance().join(address);
         }
+        FileSharingService fileSharingService = FileSharingService.getInstance();
+        fileSharingService.initializeFilesShared();
     }
     
     public void unreg(String username, String ipAddress, String port) {

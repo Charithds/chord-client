@@ -57,4 +57,23 @@ public class FingerDetailService {
             e.printStackTrace();
         }
     }
+    
+    public static void addFileToNode(Address address, String fileName, long key) {
+        try {
+            client.addFileToNode(address.getIp(), address.getPort(), 
+                    ServerCommands.ADD_FILE_TO_NODE.name(),
+                    fileName, key);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void publishToCorrectNodes(Address address) {
+        try {
+            client.publishToCorrectNodes(address.getIp(), address.getPort(), 
+                    ServerCommands.UPDATE_NODE_FILES.name());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

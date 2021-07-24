@@ -47,10 +47,11 @@ public class ClientHandler extends Thread {
 					if (node != null) {
                                             node.setHopCount(Integer.parseInt(inputLine.split(" ")[1])+1);
 						String message = objectMapper.writer().writeValueAsString(node);
-						out.println(message);;
+						out.println(message);
+                                                node.setHopCount(0);
 					} else {
 						String message = objectMapper.writer().writeValueAsString(new HashMap<>());
-						out.println(message);;
+						out.println(message);
 					}
 					break;
 				case UPDATE_FINGER_TABLE:
@@ -71,6 +72,18 @@ public class ClientHandler extends Thread {
 					args = inputLine.split(" ");
 					node = ChordState.getNode();
 					node.updatePredecessor(Long.parseLong(args[1]), args[2], Integer.parseInt(args[3]));
+					message = objectMapper.writer().writeValueAsString(new HashMap<>());
+					out.println(message);;
+					break;
+                                case ADD_FILE_TO_NODE:
+					args = inputLine.split(" ");
+                                        FileSharingService.getInstance().addFileToNode(args[1].replaceAll("_", " "), Long.parseLong(args[2]));
+					message = objectMapper.writer().writeValueAsString(new HashMap<>());
+					out.println(message);;
+					break;
+                                case UPDATE_NODE_FILES:
+                                        FileSharingService.getInstance().publishToCorrectNodes(ChordState.getFileList(),
+                                                ChordState.getKeyList());
 					message = objectMapper.writer().writeValueAsString(new HashMap<>());
 					out.println(message);;
 					break;
