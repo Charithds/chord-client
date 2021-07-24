@@ -764,8 +764,10 @@ public class ChordClientUI extends javax.swing.JFrame {
 //                    String fileDownloadURL = "http://" + selectedPeer.getAddress() + ":"+downloadPort+"/api/download?file="+fullFileName.replaceAll(" ", "");
 //                    System.out.println("File is Downloading from "+fileDownloadURL+ " to "+ChordState.getDownloadPath());
                     try {
+                        long start = System.currentTimeMillis();
                         FileDownloadUtility.downloadFile(address.getIp(), address.getPort(), fullFileName, ChordState.getDownloadPath());
-                        JOptionPane.showMessageDialog(null, "File downloaded successfuly from node " + address.getIp() + ":" + address.getPort(), "File Download Successful", JOptionPane.INFORMATION_MESSAGE);
+                        long end = System.currentTimeMillis();
+                        JOptionPane.showMessageDialog(null, "File downloaded successfuly from node " + address.getIp() + ":" + address.getPort() + " with a latency of " + (end - start) + "ms", "File Download Successful", JOptionPane.INFORMATION_MESSAGE);
 
                     } catch (IOException ex) {
                         JOptionPane.showMessageDialog(null, "File Not Found", "File Download Error", JOptionPane.WARNING_MESSAGE);
