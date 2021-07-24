@@ -56,16 +56,16 @@ public class NetworkJoinService {
         Node myNode = ChordState.getNode();
         for (int i = 0; i < ChordConfig.FINGER_TABLE_SIZE; i++) {
             long pred = (long) (myNode.getId() - Math.pow(2, i));
-            Node predecessor = myNode.findPredecessor(pred);
+            Node predecessor = myNode.findPredecessor(pred, 0);
             FingerDetailService.updateFingerTable(predecessor.getAddress(), myNode.getId(), i, myNode);
         }
     }
 
     public void initFingerTable(Address address) {
         Node myNode = ChordState.getNode();
-        Node node1 = FingerDetailService.getFingerDetails(address);
-        Finger successor = node1.findSuccessor(myNode.getFingerStarts().get(0));
-        Node successorNodeDetails = FingerDetailService.getFingerDetails(successor);
+        Node node1 = FingerDetailService.getFingerDetails(address, 0);
+        Finger successor = node1.findSuccessor(myNode.getFingerStarts().get(0), 0);
+        Node successorNodeDetails = FingerDetailService.getFingerDetails(successor, 0);
 
         if (myNode.getFingers().isEmpty()) {
             myNode.getFingers().add(successor);
@@ -89,9 +89,9 @@ public class NetworkJoinService {
                 }
             } else {
                 if (myNode.getFingers().size() < i + 2) {
-                    myNode.getFingers().add(node1.findSuccessor(myNode.getFingerStarts().get(i + 1)));
+                    myNode.getFingers().add(node1.findSuccessor(myNode.getFingerStarts().get(i + 1), 0));
                 } else {
-                    myNode.getFingers().set(i + 1, node1.findSuccessor(myNode.getFingerStarts().get(i + 1)));
+                    myNode.getFingers().set(i + 1, node1.findSuccessor(myNode.getFingerStarts().get(i + 1), 0));
                 }
             }
         }

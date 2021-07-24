@@ -29,6 +29,7 @@ public class Node {
     private List<Long> fingerIntervals = new ArrayList<Long>(ChordConfig.FINGER_TABLE_SIZE);
 //	private Finger successor;
     private Finger predecessor;
+    private int hopCount;
 
     public Node() {
         this.id = -1;
@@ -103,25 +104,26 @@ public class Node {
         this.predecessor = predecessor;
     }
 
-    public Finger findSuccessor(long id) {
-        Node node = findPredecessor(id);
+    public Finger findSuccessor(long id, int hopCount) {
+        Node node = findPredecessor(id, hopCount);
+        node.getSuccessor().setHopCount(node.getHopCount());
         return node.getSuccessor();
     }
 
-    public Node findPredecessor(long id) {
+    public Node findPredecessor(long id, int hopCount) {
         Node node = this;
         while (RangeUtil.predecessorContition(id, node)) {
-            node = node.closestPrecedingFinger(id);
+            node = node.closestPrecedingFinger(id, hopCount);
         }
         return node;
     }
 
-    public Node closestPrecedingFinger(long id) {
+    public Node closestPrecedingFinger(long id, int hopCount) {
         int m = ChordConfig.FINGER_TABLE_SIZE;
         for (int i = m - 1; i >= 0; i--) {
             Finger node = fingers.get(i);
             if (RangeUtil.closestPrecedingContition(node.getNode(), this.id, id)) {
-                return FingerDetailService.getFingerDetails(node);
+                return FingerDetailService.getFingerDetails(node, hopCount);
             }
         }
         return this;
@@ -130,7 +132,7 @@ public class Node {
     public void updateFingerTable(long n, int i, String ip, int port) {
         if (RangeUtil.intiFingerTableCondition(n, id, fingers.get(i).getNode())) {
             Address address = new Address("", ip, port);
-            Node fingerDetails = FingerDetailService.getFingerDetails(address);
+            Node fingerDetails = FingerDetailService.getFingerDetails(address, 0);
             fingers.set(i, fingerDetails.convertToFinger());
             if (!predecessor.getAddress().getIp().equals(ip) || predecessor.getAddress().getPort() != port) {
                 FingerDetailService.updateFingerTable(predecessor.getAddress(), n, i, fingerDetails);
@@ -151,5 +153,19 @@ public class Node {
         finger.setAddress(address);
         finger.setNode(id);
         this.predecessor = finger;
+    }
+
+    /**
+     * @return the hopCount
+     */
+    public int getHopCount() {
+        return hopCount;
+    }
+
+    /**
+     * @param hopCount the hopCount to set
+     */
+    public void setHopCount(int hopCount) {
+        this.hopCount = hopCount;
     }
 }

@@ -13,36 +13,36 @@ import java.io.IOException;
 
 public class FingerDetailService {
 
-	private static Client client = new Client();
+    private static Client client = new Client();
 
-	public static Node getFingerDetails(Finger finger) {
-		return getFingerDetails(finger.getAddress());
-	}
+    public static Node getFingerDetails(Finger finger, int hopCount) {
+        return getFingerDetails(finger.getAddress(), hopCount);
+    }
 
-	public static Node getFingerDetails(Address address) {
-		try {
-			return client.getDetails(address.getIp(), address.getPort(), "DETAILS");
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+    public static Node getFingerDetails(Address address, int hopCount) {
+        try {
+            return client.getDetails(address.getIp(), address.getPort(), "DETAILS " + hopCount);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-	public static void updateFingerTable(Address address, long n, int i, Node node) {
-		try {
-			client.updateFingerTable(address.getIp(), address.getPort(), ServerCommands.UPDATE_FINGER_TABLE.name(), n, i,
-					node.getAddress().getIp(), node.getAddress().getPort());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+    public static void updateFingerTable(Address address, long n, int i, Node node) {
+        try {
+            client.updateFingerTable(address.getIp(), address.getPort(), ServerCommands.UPDATE_FINGER_TABLE.name(), n, i,
+                    node.getAddress().getIp(), node.getAddress().getPort());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-	public static void updatePredecessor(Address address, Node node) {
-		try {
-			client.updatePredecessor(address.getIp(), address.getPort(), ServerCommands.UPDATE_PREDECESSOR.name(),
-					node.getId(), node.getAddress().getIp(), node.getAddress().getPort());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+    public static void updatePredecessor(Address address, Node node) {
+        try {
+            client.updatePredecessor(address.getIp(), address.getPort(), ServerCommands.UPDATE_PREDECESSOR.name(),
+                    node.getId(), node.getAddress().getIp(), node.getAddress().getPort());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -45,6 +45,7 @@ public class ClientHandler extends Thread {
 				case DETAILS:
                                         Node node = ChordState.getNode();
 					if (node != null) {
+                                            node.setHopCount(Integer.parseInt(inputLine.split(" ")[1])+1);
 						String message = objectMapper.writer().writeValueAsString(node);
 						out.println(message);;
 					} else {

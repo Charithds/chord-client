@@ -39,8 +39,9 @@ public class ChordFileSearch {
 
     private Address findKeyUsingFinger(long key) {
         try {
-            Finger successor = ChordState.getNode().findSuccessor(key);
+            Finger successor = ChordState.getNode().findSuccessor(key, 0);
             System.out.println("Key " + key + " should be there in " + successor.getNode());
+            System.out.println("Hop Count is " + successor.getHopCount());
             return successor.getAddress();
         } catch (Exception e) {
             System.err.println("Error while finding successor");

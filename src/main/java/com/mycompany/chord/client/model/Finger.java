@@ -8,6 +8,7 @@ package com.mycompany.chord.client.model;
 public class Finger {
 	private Address address;
 	private Long node;
+        private int hopCount;
 
 	public Address getAddress() {
 		return address;
@@ -24,4 +25,18 @@ public class Finger {
 	public void setNode(Long node) {
 		this.node = node;
 	}
+
+    /**
+     * @return the hopCount
+     */
+    public int getHopCount() {
+        return hopCount;
+    }
+
+    /**
+     * @param hopCount the hopCount to set
+     */
+    public void setHopCount(int hopCount) {
+        this.hopCount = hopCount;
+    }
 }
