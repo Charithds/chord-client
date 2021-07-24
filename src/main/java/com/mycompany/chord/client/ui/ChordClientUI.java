@@ -5,8 +5,10 @@
  */
 package com.mycompany.chord.client.ui;
 
+import com.mycompany.chord.client.constant.HostConfiguration;
 import com.mycompany.chord.client.model.Address;
 import com.mycompany.chord.client.model.Finger;
+import com.mycompany.chord.client.model.Node;
 import static com.mycompany.chord.client.others.Sender.data;
 import com.mycompany.chord.client.service.ChordFileSearch;
 import com.mycompany.chord.client.service.FileDownloadUtility;
@@ -27,6 +29,7 @@ import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JTabbedPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -34,11 +37,13 @@ import javax.swing.table.DefaultTableModel;
  * @author Charith.S
  */
 public class ChordClientUI extends javax.swing.JFrame {
-    
+
     private final NetworkRegisterService networkRegisterService;
     private final FileSharingService fileSharingService;
     // private ChordFileSearch chordFileSearch;
-    private JFileChooser chooser;;
+    private JFileChooser chooser;
+
+    ;
 
     /**
      * Creates new form ChordClientUI
@@ -47,29 +52,27 @@ public class ChordClientUI extends javax.swing.JFrame {
         initComponents();
         networkRegisterService = NetworkRegisterService.getInstance();
         fileSharingService = FileSharingService.getInstance();
-        
+
         fileSharingService.initializeFilesShared();
         // chordFileSearch = ChordState.getChordFileSearch();
         String folderPath = new java.io.File(".").getAbsolutePath();
         ChordState.setDownloadPath(folderPath);
         downloadPathLabel.setText(folderPath);
         updateSharedFiles();
-        
+
     }
-    
-    public void setNodesData(long id, Map<String, List<Finger>> keyMap)
-    {
+
+    public void setNodesData(long id, Map<String, List<Finger>> keyMap) {
         //lblNodeId.setText(lblNodeId.getText() + id);
-        
+
         DefaultTableModel model = (DefaultTableModel) nodesTable.getModel();
-        
+
         int size = keyMap.size();
         for (int i = 0; i < size; i++) {
-            String idkey = (String)keyMap.keySet().toArray()[i];
-            for(int j = 0; j < keyMap.get(idkey).size(); j++)
-            {
-                String[] data = {idkey, keyMap.get(idkey).get(j).getAddress().getIp(), keyMap.get(idkey).get(j).getAddress().getPort()+""};
-                model.addRow(data);   
+            String idkey = (String) keyMap.keySet().toArray()[i];
+            for (int j = 0; j < keyMap.get(idkey).size(); j++) {
+                String[] data = {idkey, keyMap.get(idkey).get(j).getAddress().getIp(), keyMap.get(idkey).get(j).getAddress().getPort() + ""};
+                model.addRow(data);
             }
         }
     }
@@ -111,27 +114,29 @@ public class ChordClientUI extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
+        usernameLbl = new javax.swing.JLabel();
+        ipLbl = new javax.swing.JLabel();
+        portLbl = new javax.swing.JLabel();
+        jLabel19 = new javax.swing.JLabel();
+        idLbl = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         jPanel7 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
+        bsIp = new javax.swing.JLabel();
+        bsPort = new javax.swing.JLabel();
         jSeparator2 = new javax.swing.JSeparator();
         jPanel8 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
-        jLabel16 = new javax.swing.JLabel();
-        jLabel17 = new javax.swing.JLabel();
+        indexIp = new javax.swing.JLabel();
+        indexPort = new javax.swing.JLabel();
         jSeparator3 = new javax.swing.JSeparator();
         jPanel10 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        fingerTable = new javax.swing.JTable();
         jPanel11 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         nodesTable = new javax.swing.JTable();
@@ -203,6 +208,12 @@ public class ChordClientUI extends javax.swing.JFrame {
                 .addComponent(portTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(connectedStatusLabel))
         );
+
+        jTabbedPane1.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jTabbedPane1StateChanged(evt);
+            }
+        });
 
         searchButton.setText("Search");
         searchButton.addActionListener(new java.awt.event.ActionListener() {
@@ -334,14 +345,15 @@ public class ChordClientUI extends javax.swing.JFrame {
 
         jLabel4.setText("Port:");
 
-        jLabel5.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
-        jLabel5.setText("charithds");
+        usernameLbl.setText("charithds");
 
-        jLabel6.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
-        jLabel6.setText("192.168.0.1");
+        ipLbl.setText("192.168.0.1");
 
-        jLabel7.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
-        jLabel7.setText("7000");
+        portLbl.setText("7000");
+
+        jLabel19.setText("id");
+
+        idLbl.setText("-1");
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -357,14 +369,19 @@ public class ChordClientUI extends javax.swing.JFrame {
                             .addComponent(jLabel3))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(ipLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(usernameLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel6Layout.createSequentialGroup()
-                                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
                                 .addComponent(jLabel4)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 137, Short.MAX_VALUE)))
+                                .addComponent(portLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel6Layout.createSequentialGroup()
+                                .addComponent(jLabel19)
+                                .addGap(18, 18, 18)
+                                .addComponent(idLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 128, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
@@ -374,13 +391,15 @@ public class ChordClientUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jLabel5))
+                    .addComponent(usernameLbl)
+                    .addComponent(jLabel19)
+                    .addComponent(idLbl))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(jLabel4)
-                    .addComponent(jLabel6)
-                    .addComponent(jLabel7))
+                    .addComponent(ipLbl)
+                    .addComponent(portLbl))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -392,11 +411,9 @@ public class ChordClientUI extends javax.swing.JFrame {
 
         jLabel11.setText("Port:");
 
-        jLabel13.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
-        jLabel13.setText("192.168.0.1");
+        bsIp.setText("192.168.0.1");
 
-        jLabel14.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
-        jLabel14.setText("7000");
+        bsPort.setText("7000");
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -410,11 +427,11 @@ public class ChordClientUI extends javax.swing.JFrame {
                         .addGap(10, 10, 10)
                         .addComponent(jLabel10)
                         .addGap(49, 49, 49)
-                        .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(bsIp, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel11)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(bsPort, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -426,8 +443,8 @@ public class ChordClientUI extends javax.swing.JFrame {
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
                     .addComponent(jLabel11)
-                    .addComponent(jLabel13)
-                    .addComponent(jLabel14)))
+                    .addComponent(bsIp)
+                    .addComponent(bsPort)))
         );
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
@@ -438,11 +455,9 @@ public class ChordClientUI extends javax.swing.JFrame {
 
         jLabel15.setText("Port:");
 
-        jLabel16.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
-        jLabel16.setText("192.168.0.1");
+        indexIp.setText("192.168.0.1");
 
-        jLabel17.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
-        jLabel17.setText("7000");
+        indexPort.setText("7000");
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
@@ -456,11 +471,11 @@ public class ChordClientUI extends javax.swing.JFrame {
                         .addGap(10, 10, 10)
                         .addComponent(jLabel12)
                         .addGap(48, 48, 48)
-                        .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(indexIp, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel15)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(indexPort, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -472,8 +487,8 @@ public class ChordClientUI extends javax.swing.JFrame {
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
                     .addComponent(jLabel15)
-                    .addComponent(jLabel16)
-                    .addComponent(jLabel17)))
+                    .addComponent(indexIp)
+                    .addComponent(indexPort)))
         );
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
@@ -511,19 +526,19 @@ public class ChordClientUI extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Status", jPanel5);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        fingerTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Finger", "Successor", "IP Address", "Port"
+                "Finger", "IP Address", "Port"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Long.class
+                java.lang.String.class, java.lang.String.class, java.lang.Long.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false
+                false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -534,7 +549,7 @@ public class ChordClientUI extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane3.setViewportView(jTable1);
+        jScrollPane3.setViewportView(fingerTable);
 
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
@@ -622,12 +637,12 @@ public class ChordClientUI extends javax.swing.JFrame {
         }
         sharedFilesList.setModel(listModel);
     }
-    
+
     private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed
         // TODO add your handling code here:
         String username = usernameTextField.getText(),
-                    ipAddress = ipTextField.getText(),
-                    port = portTextField.getText();
+                ipAddress = ipTextField.getText(),
+                port = portTextField.getText();
         if ("Join".equals(connectButton.getText())) {
             connectedStatusLabel.setText("Connecting...");
 
@@ -661,30 +676,30 @@ public class ChordClientUI extends javax.swing.JFrame {
         try {
             DefaultTableModel searchResultsDataModel = (DefaultTableModel) filesTable.getModel();
 
-            for( int i = searchResultsDataModel.getRowCount() - 1; i >= 0; i-- ) {
+            for (int i = searchResultsDataModel.getRowCount() - 1; i >= 0; i--) {
                 searchResultsDataModel.removeRow(i);
             }
 
             //Contact Index Server and Get Node List
             String fileQuery = searchTextField.getText().trim();
-            String searchMessage = "SER:"+fileQuery;
+            String searchMessage = "SER:" + fileQuery;
 
             DatagramSocket socket = new DatagramSocket();
-            byte[] toSend  = searchMessage.getBytes();
+            byte[] toSend = searchMessage.getBytes();
             InetAddress IPAddress;
+            try {
+                IPAddress = InetAddress.getByName("127.0.0.1");
+                DatagramPacket packet = new DatagramPacket(toSend, toSend.length, IPAddress, 4444);
                 try {
-                    IPAddress = InetAddress.getByName("127.0.0.1");
-                    DatagramPacket packet = new DatagramPacket(toSend, toSend.length, IPAddress, 4444);
-                    try {
-                        socket.send(packet);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-//                        Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                } catch (UnknownHostException ex) {
+                    socket.send(packet);
+                } catch (IOException ex) {
                     ex.printStackTrace();
-//                    Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
+//                        Logger.getLogger(ChordThread.class.getName()).log(Level.SEVERE, null, ex);
                 }
+            } catch (UnknownHostException ex) {
+                ex.printStackTrace();
+//                    Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
             System.out.println("Sent: " + searchMessage);
 
@@ -701,28 +716,27 @@ public class ChordClientUI extends javax.swing.JFrame {
             String serverResponse = data(receive).toString();
             System.out.println("Received: " + serverResponse);
 
-
             String[] serverResponseSegments = serverResponse.split(":");
-            if(serverResponseSegments[0].equals("SEARCH_RES")){
+            if (serverResponseSegments[0].equals("SEARCH_RES")) {
 
                 int searchResultCount = Integer.valueOf(serverResponseSegments[1]);
 
-                int i=2;
+                int i = 2;
                 String fileName = "";
                 String peerCount = "";
 
-                while(i<serverResponseSegments.length){
+                while (i < serverResponseSegments.length) {
                     fileName = serverResponseSegments[i];
-                    peerCount = serverResponseSegments[i+1];
+                    peerCount = serverResponseSegments[i + 1];
                     String[] dataRow = {fileName, peerCount};
                     searchResultsDataModel.addRow(dataRow);
-                    i=i+2;
+                    i = i + 2;
                 }
 
             }
             filesTable.setModel(searchResultsDataModel);
 
-        }catch(Exception e){
+        } catch (Exception e) {
             System.err.println(e);
         }
     }//GEN-LAST:event_searchButtonActionPerformed
@@ -730,18 +744,18 @@ public class ChordClientUI extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:\
         int selectedRow = filesTable.getSelectedRow();
-        if(selectedRow!=-1){
+        if (selectedRow != -1) {
             String fullFileName = filesTable.getModel().getValueAt(selectedRow, 0).toString();
             //String fullFileName = txtFileName.getText()
             Address address = ChordFileSearch.getInstance().searchFile(fullFileName);
-            if(address != null) {
+            if (address != null) {
                 List<String> nodeList = new ArrayList<>();
-                String peerListStr = address.getIp()+":"+address.getPort();
+                String peerListStr = address.getIp() + ":" + address.getPort();
 
-                int dialogResult = JOptionPane.showConfirmDialog (null, 
-                        "File should be there at address: "+ peerListStr+ ". Do you want to download from a random node?","Download Confirmation",JOptionPane.YES_NO_OPTION);
-                if(dialogResult == JOptionPane.YES_OPTION){
-                    
+                int dialogResult = JOptionPane.showConfirmDialog(null,
+                        "File should be there at address: " + peerListStr + ". Do you want to download from a random node?", "Download Confirmation", JOptionPane.YES_NO_OPTION);
+                if (dialogResult == JOptionPane.YES_OPTION) {
+
 //                    int randomNodeId = getRandomIntegerBetweenRange(0, nodeList.size()-1);
 //                    Finger selectedPeer = peers.get(randomNodeId);
 //                    int downloadPort = selectedPeer.getPort()+1000;
@@ -749,21 +763,19 @@ public class ChordClientUI extends javax.swing.JFrame {
 //                    System.out.println("File is Downloading from "+fileDownloadURL+ " to "+ChordState.getDownloadPath());
                     try {
                         FileDownloadUtility.downloadFile(address.getIp(), address.getPort(), fullFileName, ChordState.getDownloadPath());
-                        JOptionPane.showMessageDialog(null, "File downloaded successfuly from node "+address.getIp()+":"+address.getPort(), "File Download Successful", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "File downloaded successfuly from node " + address.getIp() + ":" + address.getPort(), "File Download Successful", JOptionPane.INFORMATION_MESSAGE);
 
                     } catch (IOException ex) {
                         JOptionPane.showMessageDialog(null, "File Not Found", "File Download Error", JOptionPane.WARNING_MESSAGE);
                         ex.printStackTrace();
                     }
-                }
-                else{
+                } else {
                     JOptionPane.showMessageDialog(null, "File Not Found", "File Download Error", JOptionPane.WARNING_MESSAGE);
                 }
-            }
-            else
+            } else {
                 JOptionPane.showMessageDialog(null, "File Not Found", "File Download Error", JOptionPane.WARNING_MESSAGE);
-        }
-        else{
+            }
+        } else {
             JOptionPane.showMessageDialog(null, "Please select a file to download", "File Download Error", JOptionPane.WARNING_MESSAGE);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
@@ -771,16 +783,16 @@ public class ChordClientUI extends javax.swing.JFrame {
     private void selectFolderButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectFolderButtonActionPerformed
         // TODO add your handling code here:
         if (chooser == null) {
-            chooser = new JFileChooser(); 
+            chooser = new JFileChooser();
             chooser.setCurrentDirectory(new java.io.File("."));
             chooser.setDialogTitle("Choose the downloads folder");
             chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             chooser.setAcceptAllFileFilterUsed(false);
         }
         //    
-        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
-            System.out.println("getCurrentDirectory(): " +  chooser.getCurrentDirectory());
-            System.out.println("getSelectedFile() : "  +  chooser.getSelectedFile());
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            System.out.println("getCurrentDirectory(): " + chooser.getCurrentDirectory());
+            System.out.println("getSelectedFile() : " + chooser.getSelectedFile());
             String loc = chooser.getCurrentDirectory().getAbsolutePath();
             ChordState.setDownloadPath(loc);
             downloadPathLabel.setText(loc);
@@ -788,6 +800,58 @@ public class ChordClientUI extends javax.swing.JFrame {
             System.out.println("No Selection ");
         }
     }//GEN-LAST:event_selectFolderButtonActionPerformed
+
+    private void updateFingers() {
+        DefaultTableModel model = (DefaultTableModel) fingerTable.getModel();
+        model.getRowCount();
+        for (int i = model.getRowCount() - 1; i >= 0; i--) {
+            model.removeRow(i);
+        }
+        Node node = ChordState.getNode();
+        if (node != null) {
+            List<Finger> fingers = node.getFingers();
+            for (int j = 0; j < fingers.size(); j++) {
+                Finger finger = fingers.get(j);
+                String[] data = {"" + finger.getNode(), finger.getAddress().getIp(), finger.getAddress().getPort() + ""};
+                model.addRow(data);
+            }
+        }
+    }
+
+    private void updateStatus() {
+        Node node = ChordState.getNode();
+        if (node != null) {
+            usernameLbl.setText(node.getAddress().getUsername());
+            ipLbl.setText(node.getAddress().getIp());
+            portLbl.setText(node.getAddress().getPort() + "");
+            idLbl.setText(node.getId() + "");
+            bsIp.setText(HostConfiguration.BOOTSTRAP_IP);
+            bsPort.setText(HostConfiguration.BOOTSTRAP_PORT + "");
+            indexIp.setText(HostConfiguration.BOOTSTRAP_IP);
+            indexPort.setText(HostConfiguration.INDEX_PORT + "");
+        } else {
+            usernameLbl.setText("");
+            ipLbl.setText("");
+            portLbl.setText("");
+            idLbl.setText("");
+            bsIp.setText(HostConfiguration.BOOTSTRAP_IP);
+            bsPort.setText(HostConfiguration.BOOTSTRAP_PORT + "");
+            indexIp.setText(HostConfiguration.BOOTSTRAP_IP);
+            indexPort.setText(HostConfiguration.INDEX_PORT + "");
+        }
+    }
+    private void jTabbedPane1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jTabbedPane1StateChanged
+        // TODO add your handling code here:
+        JTabbedPane pane = (JTabbedPane) evt.getSource();
+        int sel = pane.getSelectedIndex();
+        if (sel == 2) {
+            updateStatus();
+        }
+        if (sel == 3) {
+            updateFingers();
+        }
+        System.out.println(sel);
+    }//GEN-LAST:event_jTabbedPane1StateChanged
 
     private void connectionFailed(String connectedStatusText) {
         connectedStatusLabel.setText(connectedStatusText);
@@ -797,8 +861,9 @@ public class ChordClientUI extends javax.swing.JFrame {
         ipTextField.setEnabled(true);
         portTextField.setEnabled(true);
     }
-    
+
     private static final Logger LOG = Logger.getLogger(ChordClientUI.class.getName());
+
     /**
      * @param args the command line arguments
      */
@@ -807,12 +872,12 @@ public class ChordClientUI extends javax.swing.JFrame {
             System.setProperty("com.mycompany.chord.client.service.NetworkRegisterService", String.valueOf(Level.INFO));
             System.setProperty("com.mycompany.chord.client.service.FileSharingService", String.valueOf(Level.INFO));
             System.setProperty("com.mycompany.chord.client.others.ChordThread", String.valueOf(Level.INFO));
-            
+
             LogManager.getLogManager().readConfiguration();
         } catch (Exception e) {
             System.out.println("Error while initializing logger");
         }
-        
+
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -845,28 +910,29 @@ public class ChordClientUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel bsIp;
+    private javax.swing.JLabel bsPort;
     private javax.swing.JButton connectButton;
     private javax.swing.JLabel connectedStatusLabel;
     private javax.swing.JLabel downloadPathLabel;
     private javax.swing.JTable filesTable;
+    private javax.swing.JTable fingerTable;
+    private javax.swing.JLabel idLbl;
+    private javax.swing.JLabel indexIp;
+    private javax.swing.JLabel indexPort;
+    private javax.swing.JLabel ipLbl;
     private javax.swing.JTextField ipTextField;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
@@ -889,13 +955,14 @@ public class ChordClientUI extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTable nodesTable;
+    private javax.swing.JLabel portLbl;
     private javax.swing.JTextField portTextField;
     private javax.swing.JButton searchButton;
     private javax.swing.JTextField searchTextField;
     private javax.swing.JButton selectFolderButton;
     private javax.swing.JList<String> sharedFilesList;
+    private javax.swing.JLabel usernameLbl;
     private javax.swing.JTextField usernameTextField;
     // End of variables declaration//GEN-END:variables
 }

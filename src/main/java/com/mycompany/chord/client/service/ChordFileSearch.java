@@ -13,33 +13,35 @@ import com.mycompany.chord.client.state.ChordState;
 import com.mycompany.chord.client.util.SHA1Hasher;
 
 public class ChordFileSearch {
+
     private final Logger logger = Logger.getLogger(this.getClass().getName());
-    
+
     private static ChordFileSearch me;
+
     public static ChordFileSearch getInstance() {
         if (me == null) {
             me = new ChordFileSearch();
         }
         return me;
     }
-    
-    private ChordFileSearch(){
-    } 
-    
-    public Address searchFile(String fullFileName){
+
+    private ChordFileSearch() {
+    }
+
+    public Address searchFile(String fullFileName) {
         SHA1Hash hash = SHA1Hasher.getInstance().hash(fullFileName);
         long fileKey = hash.getLongValue();
         if (fileKey >= ChordOperation.RING_SIZE) {
             fileKey -= ChordOperation.RING_SIZE;
         }
         return findKeyUsingFinger(fileKey);
-    } 
-    
-    private Address findKeyUsingFinger(long key){
+    }
+
+    private Address findKeyUsingFinger(long key) {
         try {
-        Finger successor = ChordState.getNode().findSuccessor(key);
-        System.out.println("Key "+ key +" should be there in " + successor.getNode());
-        return successor.getAddress();
+            Finger successor = ChordState.getNode().findSuccessor(key);
+            System.out.println("Key " + key + " should be there in " + successor.getNode());
+            return successor.getAddress();
         } catch (Exception e) {
             System.err.println("Error while finding successor");
             e.printStackTrace();
@@ -63,5 +65,5 @@ public class ChordFileSearch {
          }
          return fingetList;
     }
-*/
+     */
 }
