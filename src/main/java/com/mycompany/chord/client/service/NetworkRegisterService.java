@@ -114,7 +114,9 @@ public class NetworkRegisterService {
         String message = (new Message(MessageType.UNREG, ipAddress, Integer.valueOf(port), username)).getMessage();
         System.out.println(message);
         Sender.getInstance().sendUDPMessage(message, HostConfiguration.BOOTSTRAP_IP, HostConfiguration.BOOTSTRAP_PORT);
+        NetworkJoinService.getInstance().unreg();
         ChordState.setJoined(false);
+        ChordState.getNodeDataServer().stop();
     }
     
 }

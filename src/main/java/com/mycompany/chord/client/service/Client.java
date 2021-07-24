@@ -42,6 +42,16 @@ public class Client {
 		stopConnection();
 		objectMapper.convertValue(response, Object.class);
 	}
+        
+        public void updateFingerTable(String ip, int port, String command, 
+                long n, int i, String sourceIp, int sourcePort, String successorIp, int successorPort)
+			throws IOException {
+		startConnection(ip, port);
+		String response = sendMessage(command+ " " + n + " " + i + " " 
+                        + sourceIp  + " " + sourcePort + " " + successorIp + " " + successorPort);
+		stopConnection();
+		objectMapper.convertValue(response, Object.class);
+	}
 
 	public void startConnection(String ip, int port) throws IOException {
 		clientSocket = new Socket(ip, port);

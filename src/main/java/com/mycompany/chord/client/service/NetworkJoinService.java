@@ -96,4 +96,26 @@ public class NetworkJoinService {
             }
         }
     }
+    
+    public void unreg() {
+        updateOthersAboutUnreg();
+    }
+    
+    public void updateSuccessorAfterUnreg() {
+        Node myNode = ChordState.getNode();
+        Finger successor = myNode.getSuccessor();
+        Node predecessor = FingerDetailService.getFingerDetails(myNode.getPredecessor(), 0);
+        FingerDetailService.updatePredecessor(successor.getAddress(), predecessor);
+        //FingerDetailService.updatePredecessor(successor.getAddress(), predecessor);
+    }
+    
+    public void updateOthersAboutUnreg() {
+        Node myNode = ChordState.getNode();
+        for (int i = 0; i < ChordConfig.FINGER_TABLE_SIZE; i++) {
+            long pred = (long) (myNode.getId() - Math.pow(2, i));
+            Node predecessor = myNode.findPredecessor(pred, 0);
+            FingerDetailService.updateFingerTableAboutUnreg(predecessor.getAddress(), myNode.getId(), i, myNode, 
+                myNode.getSuccessor().getAddress());
+        }
+    }
 }

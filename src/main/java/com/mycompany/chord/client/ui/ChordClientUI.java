@@ -747,13 +747,15 @@ public class ChordClientUI extends javax.swing.JFrame {
         if (selectedRow != -1) {
             String fullFileName = filesTable.getModel().getValueAt(selectedRow, 0).toString();
             //String fullFileName = txtFileName.getText()
-            Address address = ChordFileSearch.getInstance().searchFile(fullFileName);
+            Finger finger = ChordFileSearch.getInstance().searchFile(fullFileName);
+            Address address = finger.getAddress();
+            
             if (address != null) {
                 List<String> nodeList = new ArrayList<>();
                 String peerListStr = address.getIp() + ":" + address.getPort();
 
                 int dialogResult = JOptionPane.showConfirmDialog(null,
-                        "File should be there at address: " + peerListStr + ". Do you want to download from a random node?", "Download Confirmation", JOptionPane.YES_NO_OPTION);
+                        "File should be there at address: " + peerListStr + " with a hop count of: " + finger.getHopCount()+". Do you want to download?", "Download Confirmation", JOptionPane.YES_NO_OPTION);
                 if (dialogResult == JOptionPane.YES_OPTION) {
 
 //                    int randomNodeId = getRandomIntegerBetweenRange(0, nodeList.size()-1);

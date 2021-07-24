@@ -36,6 +36,18 @@ public class FingerDetailService {
             e.printStackTrace();
         }
     }
+    
+    public static void updateFingerTableAboutUnreg(Address address, long n, int i, 
+            Node node, Address successorAddress) {
+        try {
+            client.updateFingerTable(address.getIp(), address.getPort(), 
+                    ServerCommands.UPDATE_FINGER_TABLE_WHEN_UNREG.name(), n, i,
+                    node.getAddress().getIp(), node.getAddress().getPort(),
+                    successorAddress.getIp(), successorAddress.getPort());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void updatePredecessor(Address address, Node node) {
         try {

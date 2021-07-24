@@ -28,7 +28,7 @@ public class ChordFileSearch {
     private ChordFileSearch() {
     }
 
-    public Address searchFile(String fullFileName) {
+    public Finger searchFile(String fullFileName) {
         SHA1Hash hash = SHA1Hasher.getInstance().hash(fullFileName);
         long fileKey = hash.getLongValue();
         if (fileKey >= ChordOperation.RING_SIZE) {
@@ -37,12 +37,12 @@ public class ChordFileSearch {
         return findKeyUsingFinger(fileKey);
     }
 
-    private Address findKeyUsingFinger(long key) {
+    private Finger findKeyUsingFinger(long key) {
         try {
             Finger successor = ChordState.getNode().findSuccessor(key, 0);
             System.out.println("Key " + key + " should be there in " + successor.getNode());
             System.out.println("Hop Count is " + successor.getHopCount());
-            return successor.getAddress();
+            return successor;
         } catch (Exception e) {
             System.err.println("Error while finding successor");
             e.printStackTrace();

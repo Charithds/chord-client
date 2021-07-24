@@ -139,6 +139,19 @@ public class Node {
             }
         }
     }
+    
+    public void updateFingerTableAfterRemoval(long n, int i, String ip, int port, 
+            String successorIp, int successorPort) {
+        
+        Address address = new Address("", successorIp, successorPort);
+        Node fingerDetails = FingerDetailService.getFingerDetails(address, 0);
+        for (int j = 0; j < fingers.size(); j++) {
+            Finger finger = fingers.get(j);
+            if (finger.getAddress().getIp().equals(ip) && finger.getAddress().getPort() == port) {
+                fingers.set(j, fingerDetails.convertToFinger());
+            }
+        }
+    }
 
     public Finger convertToFinger() {
         Finger finger = new Finger();

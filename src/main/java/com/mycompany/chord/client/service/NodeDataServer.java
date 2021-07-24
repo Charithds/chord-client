@@ -11,6 +11,8 @@ import java.net.ServerSocket;
 
 public class NodeDataServer {
 	private ServerSocket serverSocket;
+        private Thread t;
+        private Thread downloadListener;
 
 	public void start(int port) throws IOException {
 		Runnable runnable = () -> {
@@ -23,12 +25,17 @@ public class NodeDataServer {
 				e.printStackTrace();
 			}
 		};
-		Thread t = new Thread(runnable);
+		t = new Thread(runnable);
 		t.start();
                 
-		Thread downloadListener = new Thread(new DownloadListener());
+		downloadListener = new Thread(new DownloadListener());
 		downloadListener.start();
 	}
+        
+        public void stop() {
+            t.interrupt();
+            downloadListener.interrupt();
+        }
 //		serverSocket = new ServerSocket(port);
 //		clientSocket = serverSocket.accept();
 //		out = new PrintWriter(clientSocket.getOutputStream(), true);

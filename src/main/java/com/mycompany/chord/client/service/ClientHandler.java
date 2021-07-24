@@ -60,6 +60,13 @@ public class ClientHandler extends Thread {
 					String message = objectMapper.writer().writeValueAsString(new HashMap<>());
 					out.println(message);;
 					break;
+                                case UPDATE_FINGER_TABLE_WHEN_UNREG:
+					args = inputLine.split(" ");
+					node = ChordState.getNode();
+					node.updateFingerTableAfterRemoval(Long.parseLong(args[1]), Integer.parseInt(args[2]), args[3], Integer.parseInt(args[4]), args[5], Integer.parseInt(args[6]));
+					message = objectMapper.writer().writeValueAsString(new HashMap<>());
+					out.println(message);;
+					break;
 				case UPDATE_PREDECESSOR:
 					args = inputLine.split(" ");
 					node = ChordState.getNode();

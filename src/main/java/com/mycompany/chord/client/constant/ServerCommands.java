@@ -10,5 +10,5 @@ package com.mycompany.chord.client.constant;
  * @author Charith.S
  */
 public enum ServerCommands {
-	DETAILS, UPDATE_FINGER_TABLE, UPDATE_PREDECESSOR
+	DETAILS, UPDATE_FINGER_TABLE, UPDATE_PREDECESSOR, UPDATE_FINGER_TABLE_WHEN_UNREG
 }
